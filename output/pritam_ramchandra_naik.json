@@ -1,0 +1,114 @@
+{
+  "name": "Pritam Ramchandra Naik",
+  "education": [
+    {
+      "degree": "M.Sc. (I.T.)",
+      "field": "Information Technology",
+      "institution": "Mumbai",
+      "year": "2016-2017"
+    },
+    {
+      "degree": "T.Y. BSc (I.T.)",
+      "field": "Information Technology",
+      "institution": "Mumbai",
+      "year": "2013-2014"
+    },
+    {
+      "degree": "H.S.C",
+      "field": "Maharashtra",
+      "institution": "Maharashtra",
+      "year": "2009-2010"
+    },
+    {
+      "degree": "S.S.C.",
+      "field": "Maharashtra",
+      "institution": "Maharashtra",
+      "year": "2007-2008"
+    }
+  ],
+  "experience": [
+    {
+      "designation": "Technical support Engineer L2",
+      "work_at": "Birla soft LTD.",
+      "years": "Not specified",
+      "worked_on": "VMware vSphere & vCenter 6.5 & 7.0 platform"
+    },
+    {
+      "designation": "Technical support Engineer L2",
+      "work_at": "Perpetuuiti Technosoft Pvt Ltd",
+      "years": "July 2020 to Till Now",
+      "worked_on": "Active Directory Replication and Active Directory troubleshooting"
+    },
+    {
+      "designation": "Desktop support Engineer L3",
+      "work_at": "ASM Solution Pvt Ltd",
+      "years": "Feb 2020 to July 2020",
+      "worked_on": "DNS and DHCP"
+    },
+    {
+      "designation": "Sr. System Executive.",
+      "work_at": "I Share Business Service PVT LTD",
+      "years": "April 2019 to Feb 2020",
+      "worked_on": "Not specified"
+    },
+    {
+      "designation": "System Consultant",
+      "work_at": "Learning Mate Solution PVT LTD",
+      "years": "April 2018 to March 2019",
+      "worked_on": "Not specified"
+    },
+    {
+      "designation": "FMS Engineer.",
+      "work_at": "Onward eService’s LTD (Client: HPCL)",
+      "years": "Jan 2017 to March 2018",
+      "worked_on": "Not specified"
+    },
+    {
+      "designation": "Desktop Engineer L1",
+      "work_at": "Wipro InfoTech. (Franchisee: APEX Services LTD. Client: BPCL)",
+      "years": "Oct 2014 to Jan 2017",
+      "worked_on": "Not specified"
+    }
+  ],
+  "number_of_years_of_experience": 8,
+  "professional_skills": [
+    "IT Administration",
+    "IT Vendor Management",
+    "IT Budgeting & Cost Control",
+    "IT Team Management",
+    "Incident Management",
+    "Change Management",
+    "Service management"
+  ],
+  "certifications": [
+    {
+      "name": "Not specified",
+      "year": "Not specified",
+      "id": "Not specified"
+    }
+  ],
+  "languages": [
+    "English",
+    "Marathi",
+    "Hindi"
+  ],
+  "projects": [
+    {
+      "name": "Image editing software",
+      "skills_used": "Windows Form Application, C#"
+    }
+  ],
+  "achievements": [
+    "Got certificate of achievement best performance award 2015 through Wipro.",
+    "Got certificate of achievement best performance award 2017 through Onward eservices.",
+    "Participated in “Hardware Workshop” at RJ College (Ghatkopar –East)"
+  ],
+  "DOB": "1992-05-15",
+  "gender": "Male",
+  "marital_status": "Married",
+  "nationality": "Indian",
+  "current_position": "Technical support Engineer L2",
+  "current_employer": "Birla soft LTD.",
+  "email": "",
+  "skills": []
+}

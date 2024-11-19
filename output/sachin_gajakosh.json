@@ -1,0 +1,77 @@
+{
+  "name": "Sachin Gajakosh",
+  "education": [
+    {
+      "degree": "Commerce",
+      "field": "Not specified",
+      "institution": "Bhavna Trust Degree College",
+      "year": "Not specified"
+    }
+  ],
+  "experience": [
+    {
+      "designation": "Sr System Administrator",
+      "work_at": "Nividous Software Solution",
+      "years": "Not specified",
+      "worked_on": "Not specified"
+    },
+    {
+      "designation": "Desktop Engineer",
+      "work_at": "Orient Technology",
+      "years": "10/2014 - 05/2022",
+      "worked_on": "Not specified"
+    }
+  ],
+  "number_of_years_of_experience": 11,
+  "professional_skills": [
+    "PCNSE",
+    "NSE 3.0",
+    "AZURE",
+    "VERITAS AND HP DATA PROTECTOR BACKUP",
+    "Linux",
+    "AWS",
+    "O365",
+    "WINDOWS SERVER",
+    "Vmware 6.5",
+    "ITIL 4.0"
+  ],
+  "certifications": [
+    {
+      "name": "ITIL 4.0",
+      "year": "Not specified",
+      "id": "Not specified"
+    },
+    {
+      "name": "Vmware 6.5",
+      "year": "Not specified",
+      "id": "Not specified"
+    },
+    {
+      "name": "PCNSE",
+      "year": "Not specified",
+      "id": "Not specified"
+    }
+  ],
+  "languages": [
+    "English",
+    "Hindi",
+    "Marathi"
+  ],
+  "projects": [
+    {
+      "name": "Not specified",
+      "skills_used": "Not specified"
+    }
+  ],
+  "achievements": [
+    "Not specified"
+  ],
+  "DOB": "02/09/1987",
+  "gender": "Not specified",
+  "marital_status": "Single",
+  "nationality": "Indian",
+  "current_position": "Not specified",
+  "current_employer": "Not specified",
+  "email": "",
+  "skills": []
+}

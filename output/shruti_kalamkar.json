@@ -1,0 +1,47 @@
+{
+  "name": "Shruti Kalamkar",
+  "education": [
+    {
+      "degree": "BE in Electronics and Telecommunication",
+      "field": "Electronics and Telecommunication",
+      "institution": "Not specified",
+      "year": "Not specified"
+    }
+  ],
+  "experience": [
+    {
+      "designation": "Technical Support L2 (Windows, O365)",
+      "work_at": "ConnectWise, Mumbai, India",
+      "years": "April 2022-Present",
+      "worked_on": "Active directory administration, addition of new users, computers, Disabling of users leaving organization, Complete O365 administration (license and user management), Exchange Online administration (delegation and mailbox management), Complete end user support for apps, devices, MFA , OneDrive, Handling Issues with Outlook, Teams, mail reachability issues, Troubleshooting O365 issues with SARA tool, Troubleshooting desktop and server issues like BSOD etc."
+    },
+    {
+      "designation": "Windows Server Administrator",
+      "work_at": "Wipro, Mumbai , India (Deputed for HDFC Bank)",
+      "years": "Oct 2019-April 2022",
+      "worked_on": "Monitoring server health and performance of an infrastructure with 7000+ servers using VROPs and CA Spectrum tools, Resolving issues like high CPU/memory usage, disk space usage, server inaccessibility, Informing the dedicated incident management team about critical alerts of servers, hosts, clusters, datastores by logging DS4 tickets, Deployment and configuration of new VMs as per client checklist, Installation of required server roles and features, Resource Management of VMs – addition of CPU, RAM, Disks from esxi hosts or Datastore after checking feasibility"
+    }
+  ],
+  "number_of_years_of_experience": 3,
+  "professional_skills": [
+    "Windows Server 2008-2019",
+    "VMware Vcenter",
+    "Microsoft Hyper - V",
+    "Office 365",
+    "Exchange Online",
+    "Active Directory – Users and Groups",
+    "Troubleshooting"
+  ],
+  "certifications": [],
+  "languages": [],
+  "projects": [],
+  "achievements": [],
+  "DOB": "Not specified",
+  "gender": "Not specified",
+  "marital_status": "Not specified",
+  "nationality": "Not specified",
+  "current_position": "Technical Support L2 (Windows, O365)",
+  "current_employer": "ConnectWise, Mumbai, India",
+  "email": "",
+  "skills": []
+}

@@ -1,0 +1,130 @@
+{
+  "name": "Premdas Ishwar Waghmare",
+  "education": [
+    {
+      "degree": "B.E. Computers",
+      "field": "Computers",
+      "institution": "Mumbai University",
+      "year": "2006"
+    }
+  ],
+  "experience": [
+    {
+      "designation": "Server Admin",
+      "work_at": "Future Focus Infotech (Lupin)",
+      "years": "Nov'21-Present",
+      "worked_on": "VMware ESXi 6.5/6.7/7.0, vCenter7, Nutanix, Windows Server 2008/2012/2016/2019, Dell SC 3020, Dell EMC ME 4024 /4012, Dell Equallogic-PS6210, Dell MD3600/3200, HP EVA4000"
+    },
+    {
+      "designation": "System Support Analyst",
+      "work_at": "Dominion Diamond India Pvt. Ltd.",
+      "years": "May 12 to Mar 21",
+      "worked_on": "VMware ESXi7, vCenter7, Windows Server 2008 R2, Server 2012 and Server 2016, AWS, Active Directory Services 2012/2016"
+    },
+    {
+      "designation": "System Administrator",
+      "work_at": "G Gheewala Human Resource Consultants",
+      "years": "Jul 05-May 12",
+      "worked_on": "Server 2003, Desktops, Laptop, Antivirus, Firewall, NAS Backup, Website Maintenance & Renewals, Domain Management, EPBX System - Backup & Maintenance"
+    },
+    {
+      "designation": "Receipt Incharge",
+      "work_at": "Total Logistics India Pvt. Ltd - (Voltas Ltd - Mumbai)",
+      "years": "Oct 03-Jun 05",
+      "worked_on": "SAP MM, Procurement of materials, EPR & Lotus notes mailing system"
+    }
+  ],
+  "professional_skills": [
+    "System Administration",
+    "VMware vSphere Admin",
+    "Virtual Networking",
+    "Network Administration",
+    "IT Infrastructure",
+    "Storage Admin",
+    "Nutanix Administrator",
+    "Active Directory",
+    "Group Policy",
+    "DHCP",
+    "DNS",
+    "Windows Server 2008/2012/2016/2019",
+    "VMware vsphere",
+    "Veeam Backup",
+    "Nutanix",
+    "AWS",
+    "Storage",
+    "Microsoft Office Tools",
+    "Microsoft Excel",
+    "Word",
+    "PowerPoint",
+    "Outlook"
+  ],
+  "certifications": [
+    {
+      "name": "VMware vSphere 7.0 (Install, Configure, Manage)",
+      "year": "Not specified",
+      "id": "Attari Classes"
+    },
+    {
+      "name": "AWS Solution Architect",
+      "year": "Not specified",
+      "id": "Attari Classes"
+    },
+    {
+      "name": "MCSE - Server 2019 Active Directory",
+      "year": "Not specified",
+      "id": "Online Training"
+    },
+    {
+      "name": "MCSA Server 2008 R2",
+      "year": "Not specified",
+      "id": "Ingram Micro"
+    },
+    {
+      "name": "CCNA",
+      "year": "Not specified",
+      "id": "Not specified"
+    },
+    {
+      "name": "Redhat 5.4",
+      "year": "Not specified",
+      "id": "Not specified"
+    }
+  ],
+  "languages": [
+    "English",
+    "Hindi",
+    "Marathi"
+  ],
+  "projects": [
+    {
+      "name": "Global Security Operations Center (GSOC) in Mumbai",
+      "skills_used": "VMware ESXi7, vCenter7, Windows Server 2008 R2, Server 2012 and Server 2016"
+    },
+    {
+      "name": "Global SAP Operations Center in Mumbai",
+      "skills_used": "VMware ESXi7, vCenter7, Windows Server 2008 R2, Server 2012 and Server 2016"
+    },
+    {
+      "name": "Global Shared Service Office in Mumbai",
+      "skills_used": "VMware ESXi7, vCenter7, Windows Server 2008 R2, Server 2012 and Server 2016"
+    },
+    {
+      "name": "Sorting & Admin Office in Mumbai",
+      "skills_used": "VMware ESXi7, vCenter7, Windows Server 2008 R2, Server 2012 and Server 2016"
+    }
+  ],
+  "achievements": [
+    "Successfully set up Global Security Operations Center (GSOC) in Mumbai: Planning, execution (2018)",
+    "Successfully set up Global SAP Operations Center in Mumbai: Planning, execution (2018)",
+    "Successfully set up Global Shared Service Office in Mumbai (Service Desk Team, Server, Network, Cyber Security & Application Team) : Planning, execution (2017)",
+    "Successfully set up Sorting & Admin Office in Mumbai – (2014 - 2015)",
+    "Awarded for Long Standing Service Awards (LSSA) - 2017"
+  ],
+  "DOB": "1978-02-23",
+  "gender": "Male",
+  "marital_status": "Married",
+  "nationality": "Indian",
+  "current_position": "Server Admin",
+  "current_employer": "Future Focus Infotech (Lupin)",
+  "email": ""
+}

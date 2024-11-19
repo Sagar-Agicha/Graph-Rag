@@ -1,0 +1,95 @@
+{
+  "name": "Pramod Maruti Fage",
+  "education": [
+    {
+      "degree": "BCom",
+      "field": "Not specified",
+      "institution": "Mumbai University",
+      "year": "Not specified"
+    },
+    {
+      "degree": "HSC",
+      "field": "Not specified",
+      "institution": "Maharashtra Board",
+      "year": "Not specified"
+    },
+    {
+      "degree": "SSC",
+      "field": "Not specified",
+      "institution": "Maharashtra Board",
+      "year": "Not specified"
+    }
+  ],
+  "experience": [
+    {
+      "designation": "System Administrator",
+      "work_at": "NEWTRONIC LIFECARE EQUIPEMENT PVT. LTD.",
+      "years": "2016-2021",
+      "worked_on": "VMware ESXi, vCenter Server, Microsoft Office 365, Cyberoam Firewall, Veritas Backup Exec 16"
+    },
+    {
+      "designation": "Sr. Technical Support Engineer",
+      "work_at": "ITV COMPUTERS PVT LTD.",
+      "years": "2014-2016",
+      "worked_on": "Windows Server 2003, Windows 8, Active Directory, DHCP, DNS, Domain"
+    },
+    {
+      "designation": "Technical Support Engineer",
+      "work_at": "Ruchi Infosytems Corporation (RIC Group)",
+      "years": "2012-2014",
+      "worked_on": "Windows Server 2003, Windows 2008, DHCP, DNS, Domain, Tally, Photoshop, Corel Draw, MS Office"
+    }
+  ],
+  "number_of_years_of_experience": 10,
+  "professional_skills": [
+    "VMware ESXi",
+    "vCenter Server",
+    "Microsoft Office 365",
+    "Cyberoam Firewall",
+    "Veritas Backup Exec 16",
+    "Windows Server 2003",
+    "Windows 8",
+    "Active Directory",
+    "DHCP",
+    "DNS",
+    "Domain",
+    "Tally",
+    "Photoshop",
+    "Corel Draw",
+    "MS Office"
+  ],
+  "certifications": [
+    {
+      "name": "VMware vSphere: Install, Configure, Manage [V7.0]",
+      "year": "Not specified",
+      "id": "Not specified"
+    },
+    {
+      "name": "JCHNP (Jetking Certified Hardware & Networking Professional)",
+      "year": "2012",
+      "id": "Not specified"
+    }
+  ],
+  "languages": [
+    "English",
+    "Marathi",
+    "Hindi"
+  ],
+  "projects": [
+    {
+      "name": "Not specified",
+      "skills_used": "VMware ESXi, vCenter Server, Microsoft Office 365, Cyberoam Firewall, Veritas Backup Exec 16"
+    }
+  ],
+  "achievements": [
+    "100% output in high-level security and efficiency"
+  ],
+  "DOB": "13th March 1990",
+  "gender": "Male",
+  "marital_status": "Married",
+  "nationality": "Indian",
+  "current_position": "System Administrator",
+  "current_employer": "NEWTRONIC LIFECARE EQUIPEMENT PVT. LTD.",
+  "email": "",
+  "skills": []
+}

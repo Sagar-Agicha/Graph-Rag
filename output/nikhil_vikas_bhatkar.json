@@ -1,0 +1,104 @@
+{
+  "name": "Nikhil Vikas Bhatkar",
+  "education": [
+    {
+      "degree": "BSC-IT",
+      "field": "Information Technology",
+      "institution": "Dr.Ambedkar College, Wadala",
+      "year": "2018"
+    },
+    {
+      "degree": "Diploma Computer Technology",
+      "field": "Computer Technology",
+      "institution": "Vivekanand Education Society’s Polytechnic, Kurla",
+      "year": "2015"
+    },
+    {
+      "degree": "ITI",
+      "field": "Industrial Training",
+      "institution": "Fr.Agnel Industrial Training Center, Vashi,Navi Mumbai",
+      "year": "2010"
+    },
+    {
+      "degree": "SSC",
+      "field": "Secondary School Certificate",
+      "institution": "Dr.Bedekar Vidya Mandir, Thane",
+      "year": "2008"
+    }
+  ],
+  "experience": [
+    {
+      "designation": "Wintel Admin",
+      "work_at": "IBM India Pvt Ltd (Net Connect Pvt Ltd)",
+      "years": "Jul-2019-Apr-2020",
+      "worked_on": "VMware ESXi infrastructure, Windows guest OS, Azure, WSUS, BCM"
+    },
+    {
+      "designation": "System Operation Associate 2",
+      "work_at": "Media.net Software Services",
+      "years": "May-2020 - July-2021",
+      "worked_on": "VMware ESXi infrastructure, Windows OS, Guest Virtual servers, Azure"
+    },
+    {
+      "designation": "Data Center Operation",
+      "work_at": "IBM India Pvt Ltd (Future Focus InfoTech Pvt Ltd.)",
+      "years": "Nov-2018 to July 2019",
+      "worked_on": "Data Center infrastructure, VMware infrastructure, Server provisioning, Firmware upgrade"
+    },
+    {
+      "designation": "Associate Technical Engineer",
+      "work_at": "CMS IT Services Limited",
+      "years": "June-2015 to July-2016",
+      "worked_on": "Data Center infrastructure, VMware, Active Directory, DNS, DHCP"
+    }
+  ],
+  "number_of_years_of_experience": 5,
+  "professional_skills": [
+    "VMware",
+    "Windows Administration",
+    "Data Center environment",
+    "Analyzing",
+    "Complex issue investigation",
+    "Root Cause Analysis",
+    "Implementation of productivity ideas",
+    "Proactive monitoring",
+    "Coordination with another team",
+    "Guide team members",
+    "Preparing team plan",
+    "Client communication"
+  ],
+  "certifications": [
+    {
+      "name": "VMware Certified Professional Data Center Virtualization 7.X",
+      "year": "2022",
+      "id": "VMW-03055112P-02998166"
+    },
+    {
+      "name": "Microsoft Certified Solutions Associate (MCSA)",
+      "year": "2014",
+      "id": "MS0610439144"
+    }
+  ],
+  "languages": [
+    "English",
+    "Marathi",
+    "Hindi"
+  ],
+  "projects": [
+    {
+      "name": "Not specified",
+      "skills_used": "VMware ESXi infrastructure, Windows guest OS, Azure"
+    }
+  ],
+  "achievements": [
+    "Not specified"
+  ],
+  "DOB": "1991-11-09",
+  "gender": "Not specified",
+  "marital_status": "Single",
+  "nationality": "Not specified",
+  "current_position": "Not specified",
+  "current_employer": "Not specified",
+  "email": "",
+  "skills": []
+}

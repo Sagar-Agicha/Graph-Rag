@@ -1,0 +1,110 @@
+{
+  "name": "Nikhil Upadhye",
+  "education": [
+    {
+      "degree": "S.S.C",
+      "field": "Not specified",
+      "institution": "Nutan Vidyalaya Board",
+      "year": "2011"
+    },
+    {
+      "degree": "H.S.C",
+      "field": "Not specified",
+      "institution": "Viva Junior College",
+      "year": "2013"
+    },
+    {
+      "degree": "B.Sc.IT",
+      "field": "Not specified",
+      "institution": "BLU sel CHEV Mumbai Board",
+      "year": "2017"
+    }
+  ],
+  "experience": [
+    {
+      "designation": "IT Administrator",
+      "work_at": "Kanthwal Services (BHS at Mumbai International AirPort.)",
+      "years": "2021-Present",
+      "worked_on": "Windows Server 2016, Active Directory, Group Policy, Share Folder Quota, File Screening on Share Folder, DNS, AD-Recycle Bin, AD-DC-ADC/DNS, DHCP Server and Scope, MAC Address Filtering In DHCP Server, IP Reservation in DHCP server, Symantec Backup Exec, WSUS patch Update OS/Patch Release management, Hosts patching via Update Manager Plug-in, WSFC like Hyper V/File Server, FTP Server, CPU & Memory utilization & monitoring, Server UPS Power Monitoring, Server Room Temperature, SAN Health Monitoring, Daily Server Checklist, High availability of BHS IT Infrastructure at Mumbai International Airport, Acronis, Windows IIS administration and configuration, data center maintenance including hardware installation and documentation, VMware vSphere 6/7 ESXi Infrastructure, VM Clone/Template, VM Snapshot, VM Migration, Installing VMware Tools, DRS, SDRS, HA, FT"
+    },
+    {
+      "designation": "Desktop Support Engineer L2",
+      "work_at": "RAS. Pvt. Ltd. (Client: - Ruchi Soya Industries Limited.) (Wipro Synergy ID: - NI40075111)",
+      "years": "2021-2021",
+      "worked_on": "Printer and scanner, Asset Management, VIP User’s support, Diagnosis and troubleshooting of various issues, Outlook related problems and configuration (O365), Windows 7, 8, 10 installation and troubleshooting"
+    },
+    {
+      "designation": "Desktop and Remote Support Engineer",
+      "work_at": "Info Soft Design & Service Pvt. Ltd.",
+      "years": "2018-2021",
+      "worked_on": "AMS, VOIP Phone, ROIP Devices, IVRS, ACDM, KVM Devices, Server, Eclipse, SAGA, Bo SAP, GOS-VDGS and VOIP Phone configuration, Printer and scanner, VIP User support, Diagnosis and troubleshooting of various issues, Outlook related problems and configuration (O365), Windows 7, 8, 10 installation and troubleshooting"
+    }
+  ],
+  "number_of_years_of_experience": 3,
+  "professional_skills": [
+    "MS Office 2007 & 2013",
+    "Hardware and Networking knowledge",
+    "VMware vSphere 6/7 ESXi Infrastructure",
+    "VMware Tools",
+    "DRS, SDRS, HA, FT",
+    "Windows Server 2016",
+    "Active Directory",
+    "Group Policy",
+    "Share Folder Quota",
+    "File Screening on Share Folder",
+    "DNS",
+    "AD-Recycle Bin",
+    "AD-DC-ADC/DNS",
+    "DHCP Server and Scope",
+    "MAC Address Filtering In DHCP Server",
+    "IP Reservation in DHCP server",
+    "Symantec Backup Exec",
+    "WSUS patch Update OS/Patch Release management",
+    "Hosts patching via Update Manager Plug-in",
+    "WSFC like Hyper V/File Server",
+    "FTP Server",
+    "CPU & Memory utilization & monitoring",
+    "Server UPS Power Monitoring",
+    "Server Room Temperature",
+    "SAN Health Monitoring",
+    "Daily Server Checklist",
+    "High availability of BHS IT Infrastructure at Mumbai International Airport",
+    "Acronis",
+    "Windows IIS administration and configuration",
+    "data center maintenance including hardware installation and documentation"
+  ],
+  "certifications": [
+    {
+      "name": "Certificate of Attend VMware Tanning",
+      "year": "Not specified",
+      "id": "Not specified"
+    },
+    {
+      "name": "Certificate of Attend MCSE Tanning",
+      "year": "Not specified",
+      "id": "Not specified"
+    }
+  ],
+  "languages": [
+    "Marathi",
+    "Hindi",
+    "English"
+  ],
+  "projects": [
+    {
+      "name": "Not specified",
+      "skills_used": "Not specified"
+    }
+  ],
+  "achievements": [
+    "Not specified"
+  ],
+  "DOB": "1995-07-06",
+  "gender": "Not specified",
+  "marital_status": "Unmarried",
+  "nationality": "Not specified",
+  "current_position": "IT Administrator",
+  "current_employer": "Kanthwal Services (BHS at Mumbai International AirPort.)",
+  "email": "",
+  "skills": []
+}
