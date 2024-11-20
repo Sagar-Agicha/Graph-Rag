@@ -10,6 +10,8 @@ import pytesseract
 from pdf2image import convert_from_path
 import numpy as np
 from PyPDF2 import PdfReader
+import spacy
+from gensim.models import KeyedVectors
 
 pytesseract.pytesseract.tesseract_cmd = r"C:\Program Files\Tesseract-OCR\tesseract.exe"
 
@@ -19,6 +21,28 @@ dotenv.load_dotenv()
 if os.name == 'nt':  # Windows
     POPPLER_PATH = r"C:\Users\DELL\Downloads\Release-24.08.0-0\poppler-24.08.0\Library\bin"
     os.environ["PATH"] += os.pathsep + POPPLER_PATH
+
+# Load spaCy model
+nlp = spacy.load("en_core_web_md")
+
+# Load pre-trained word vectors (e.g., GloVe)
+# You can download GloVe vectors from https://nlp.stanford.edu/projects/glove/
+# and load them using gensim
+# model = KeyedVectors.load_word2vec_format('glove.6B.100d.txt', binary=False, no_header=True)
+
+def find_synonyms(word, top_n=5):
+    # Use spaCy to find similar words
+    word_vector = nlp(word).vector
+    similar_words = nlp.vocab.vectors.most_similar(word_vector.reshape(1, -1), n=top_n)
+    return [nlp.vocab.strings[w] for w in similar_words[0][0]]
+
+def preprocess_skills(skills):
+    processed_skills = []
+    for skill in skills:
+        # Find synonyms for each skill
+        synonyms = find_synonyms(skill)
+        processed_skills.extend(synonyms)
+    return list(set(processed_skills))  # Remove duplicates
 
 def clean_and_parse_json(json_string):
     try:

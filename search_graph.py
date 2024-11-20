@@ -5,9 +5,6 @@ import logging
 from typing import Dict, List, Any
 import json
 import networkx as nx
-import matplotlib.pyplot as plt
-from pyvis.network import Network
-import webbrowser
 import dotenv
 
 dotenv.load_dotenv()
@@ -48,10 +45,13 @@ class GraphSearcher:
                 messages=[
                     {"role": "system", "content": """
                         You are an expert in Neo4j and Cypher query language. Your task is to convert natural language queries into precise Cypher statements using the given database schema.
-                        Return only cypher query no addiational responses.
-                        If asked for skills, certification, return only name. 
-                        If specificly asked for email then return email.
-                     
+                        Return only the Cypher query with no additional responses.
+                        If asked for skills or certifications, return only `p.name AS Name`.
+                        If specifically asked for email, return only `p.email AS Email`.
+                        For numeric comparisons, ensure to convert string fields to integers using toInteger().
+                        Use `CONTAINS` or `STARTS WITH` for partial matches in skill names.
+                        For exact word matches within a sentence, use regular expressions to ensure the word is matched as a standalone word.
+
                         ### Database Schema
                         Nodes:
                         - (:Person {name, email, DOB, gender, marital_status, nationality, current_position, current_employer, number_of_years_of_experience})
@@ -85,11 +85,24 @@ class GraphSearcher:
                         #### Example 1:
                         **Natural Language Query**: Find all people skilled in Python with a certification in data science.
                         **Cypher Query**:
-                        ```cypher
                         OPTIONAL MATCH (p:Person)-[:HAS_SKILL]->(s:Skill {name: "Python"})
                         OPTIONAL MATCH (p)-[:HAS_CERTIFICATION]->(c:Certification {name: "Data Science"})
                         RETURN DISTINCT p.name AS Name
+
+                        #### Example 2:
+                        **Natural Language Query**: Show me all people who who have more then 3 years of experience 
+                        **Cypher Query**:
+                        MATCH (p:Person)
+                        WHERE toInteger(p.number_of_years_of_experience) > 3
+                        RETURN p.name as Name   
                      
+                        #### Example 3:
+                        **Natural Language Query**: Show me all the people who are skilled in Nutanix.
+                        **Cypher Query**:
+                        MATCH (p:Person)-[:HAS_SKILL]->(s:Skill)
+                        WHERE toLower(s.name) CONTAINS toLower('nutanix')
+                        RETURN DISTINCT p.name AS Name
+
                         Return only cypher query no addiational responses.
                         Validate the response again, only cypher query nothing else.
                         """},
@@ -113,7 +126,7 @@ class GraphSearcher:
                 model='Meta-Llama-3.1-8B-Instruct',
                 messages=[
                     {"role": "system", "content": "Convert database results into natural language response. Be concise and clear."},
-                    {"role": "user", "content": f"Convert these results to natural language just names nothing else and if any fields are empty delete it from the response and give the names in a straight line: {json.dumps(results)}"}
+                    {"role": "user", "content": f"Convert these results to natural language just names nothing else and if any fields are empty delete it from the response and give each name in a new line: {json.dumps(results)}"}
                 ],
                 temperature=0.0,
                 top_p=0.0
@@ -140,7 +153,7 @@ class GraphSearcher:
 
             print("results_list = ", results_list)
 
-            return results_list
+            return self.format_results(results_list)
 
         except Exception as e:
             logger.error(f"Search error: {e}")
