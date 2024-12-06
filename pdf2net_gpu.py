@@ -11,8 +11,19 @@ from pdf2image import convert_from_path
 import numpy as np
 from PyPDF2 import PdfReader
 import spacy
+import transformers
+import torch
 
 pytesseract.pytesseract.tesseract_cmd = r"/usr/bin/tesseract"
+
+model_id = "meta-llama/Llama-3.1-8B-Instruct"
+
+pipeline = transformers.pipeline(
+    "text-generation",
+    model=model_id,
+    model_kwargs={"torch_dtype": torch.float32},
+    device_map="auto",
+)
 
 dotenv.load_dotenv()
 # Load spaCy model
@@ -112,25 +123,128 @@ def validate_json_structure(json_data):
     
     return json_data
 
-def query_sambanova_llm(prompt: str) -> Dict[str, Any]:
-    """Query SambaNova's API endpoint for text generation and return JSON"""
-    client = openai.OpenAI(
-        api_key=os.getenv("SAMBANOVA_API_KEY"),
-        base_url=os.getenv("SAMBANOVA_BASE_URL")
-    )
+def query_sambanova_llm(text_resume: str, flag) -> Dict[str, Any]:
+        
+    if flag == 1:    
+        prompt_json = """Parse this resume into a focused JSON format. Extract only the most important information.
+            
+            CRITICAL RULES:
+            1. Return ONLY valid JSON - no explanations or other text
+            2. All arrays must be properly formatted with NO extra commas or braces
+            3. Use "Not specified" for missing values instead of null or empty strings
+            4. Never include trailing commas in arrays or objects
+            5. All strings must use double quotes, not single quotes
+            6. Each skill, certification, and achievement must be a separate entry in its array
+            7. Check for skills synonyms eg Competencies, Skills, Technologies, Tools, etc. and consolidate them into a single skill entry
+            8. Dont take skills from experience section, take them from skills section
 
-    response = client.chat.completions.create(
-        model='Meta-Llama-3.1-8B-Instruct',
-        messages=[
-            {"role": "system", "content": "You are a helpful assistant. Always return valid JSON."},
-            {"role": "user", "content": "Return the response as a single, valid JSON object. " + prompt}
-        ],
-        temperature=0.1,  # Reduced temperature for more consistent output
-        top_p=0.1
-    )
+            VALIDATION CHECKLIST:
+            - Each array must start with [ and end with ]
+            - Each object must start with {{ and end with }}
+            - No trailing commas after the last item in arrays or objects
+            - All string values must be in double quotes
+            - Dates should be in specified format or "Not specified"
+            - Each entry in skills, certifications, and achievements must be a separate object or string as specified
+            - Projects should have a name and skills_used, as individual entries
 
-    result = response.choices[0].message.content.strip()
+            IMPORTANT FOR NEO4J:
+            - Skills must be individual entries for proper node creation
+            - Certifications and projects should be separate objects for proper relationships
+            - Achievements should be individual strings for node creation
+            - Experience entries should be in reverse chronological order
+            
+            Expected Structure:
+            {{
+                "name": "Candidate full name",
+                "education": [
+                    {{
+                        "degree": "Exact degree name",
+                        "field": "Field of study",
+                        "institution": "Institution name",
+                        "year": "YYYY or YYYY-YYYY format"
+                    }}
+                ],
+                "experience": [
+                    {{
+                        "designation": "Exact job title",
+                        "work_at": "Company name",
+                        "years": "YYYY-YYYY or YYYY-Present",
+                        "worked_on": "Technologies worked on"
+                    }}
+                ],
+                "number_of_years_of_experience": <integer>,
+                "professional_skills": [
+                    "Individual Skill 1",
+                    "Individual Skill 2"
+                ],
+                "certifications": [
+                    {{
+                        "name": "Individual certification name",
+                        "year": "YYYY or Not specified",
+                        "id": "ID or Not specified"
+                    }}
+                ],
+                "languages": [
+                    "Individual Language 1",
+                    "Individual Language 2"
+                ],
+                "projects": [
+                    {{
+                        "name": "Project name",
+                        "skills_used": "Technologies used"
+                    }}
+                ],
+                "achievements": [
+                    "Individual Achievement 1",
+                    "Individual Achievement 2"
+                ],
+                "DOB": "YYYY-MM-DD or Not specified",
+                "gender": "Gender or Not specified",
+                "marital_status": "Status or Not specified",
+                "nationality": "Nationality or Not specified",
+                "current_position": "Current job title",
+                "current_employer": "Current employer name"
+            }}"""
+    elif flag == 2:
+        prompt_json = """Parse this resume into a focused JSON format. Extract only the most important information.
+            You are a JSON repair specialist. The following JSON needs to be reparsed into a valid format.
     
+            REQUIREMENTS:
+            1. Return ONLY the corrected JSON - no explanations or additional text
+            2. Maintain all existing data but consolidate redundant skills:
+            - Combine similar skills into single entries
+            - Remove duplicate skills
+            - Limit to most important/unique skills (max 30)
+            - For technologies like VMware, list main components only
+            3. Ensure proper formatting:
+            - Use double quotes for all strings
+            - No trailing commas
+            - Properly closed arrays and objects
+            - Valid date formats (YYYY-MM-DD)
+            4. Required fields:
+            - name (string)
+            - education (array of objects)
+            - experience (array of objects)
+            - skills (array of strings)
+            5. Data cleaning rules:
+            - Remove any fields with empty or "Not specified" values
+            - Remove any empty arrays
+            - Remove any optional fields that lack meaningful data
+            - Keep only fields with actual content
+                """
+
+    messages = [
+        {"role": "system", "content": prompt_json},
+        {"role": "user", "content": text_resume},
+    ]
+
+    outputs = pipeline(
+        messages,
+        max_new_tokens=1024*2,
+    )
+    result = outputs[0]["generated_text"][-1]
+    result = result['content']
+        
     try:
         # Clean and parse the response
         structured_output = clean_and_parse_json(result)
@@ -230,13 +344,13 @@ def extract_text_from_resumes(folder_path):
         print(f"\nExtracted text tokens: {text_tokens}")
         
         # Generate appropriate prompt based on token count
-        prompt = create_prompt(str(extracted_text), text_tokens)
-        prompt_tokens = count_tokens(prompt)
+        #prompt = create_prompt(str(extracted_text), text_tokens)
+        prompt_tokens = count_tokens(str(extracted_text))
         print(f"Prompt tokens: {prompt_tokens}")
         print(f"Using {'simplified' if text_tokens > 1000 else 'detailed'} prompt format")
         
         # Continue with existing processing...
-        initial_output = query_sambanova_llm(prompt)
+        initial_output = query_sambanova_llm(str(extracted_text), 1)
         
         if "error" in initial_output or not isinstance(initial_output, dict):
             print(f"Initial parsing failed for {filename}, attempting fixes...")
@@ -334,168 +448,8 @@ def extract_text_from_resumes(folder_path):
 
 def create_prompt(text: str, token_count: int) -> str:
     """Creates a detailed prompt for structured resume parsing based on token count"""
-    
-    if token_count <= 1000:
-        # Original detailed prompt for shorter texts
-        return f"""
-        You are a precise JSON resume parser. Parse the following resume text into a structured JSON format optimized for Neo4j graph database.
-        
-        CRITICAL RULES:
-        1. Return ONLY valid JSON - no explanations or other text
-        2. All arrays must be properly formatted with NO extra commas or braces
-        3. Use "Not specified" for missing values instead of null or empty strings
-        4. Never include trailing commas in arrays or objects
-        5. All strings must use double quotes, not single quotes
-        6. Each skill, certification, and achievement must be a separate entry in its array
-        7. Check for skills synonyms eg Competencies, Skills, Technologies, Tools, etc. and consolidate them into a single skill entry
-        8. Dont take skills from experience section, take them from skills section
-
-        VALIDATION CHECKLIST:
-        - Each array must start with [ and end with ]
-        - Each object must start with {{ and end with }}
-        - No trailing commas after the last item in arrays or objects
-        - All string values must be in double quotes
-        - Dates should be in specified format or "Not specified"
-        - Each entry in skills, certifications, and achievements must be a separate object or string as specified
-        - Projects should have a name and skills_used, as individual entries
-
-        IMPORTANT FOR NEO4J:
-        - Skills must be individual entries for proper node creation
-        - Certifications and projects should be separate objects for proper relationships
-        - Achievements should be individual strings for node creation
-        - Experience entries should be in reverse chronological order
-        
-        Expected Structure:
-        {{
-            "name": "Candidate full name",
-            "education": [
-                {{
-                    "degree": "Exact degree name",
-                    "field": "Field of study",
-                    "institution": "Institution name",
-                    "year": "YYYY or YYYY-YYYY format"
-                }}
-            ],
-            "experience": [
-                {{
-                    "designation": "Exact job title",
-                    "work_at": "Company name",
-                    "years": "YYYY-YYYY or YYYY-Present",
-                    "worked_on": "Technologies worked on"
-                }}
-            ],
-            "number_of_years_of_experience": <integer>,
-            "professional_skills": [
-                "Individual Skill 1",
-                "Individual Skill 2"
-            ],
-            "certifications": [
-                {{
-                    "name": "Individual certification name",
-                    "year": "YYYY or Not specified",
-                    "id": "ID or Not specified"
-                }}
-            ],
-            "languages": [
-                "Individual Language 1",
-                "Individual Language 2"
-            ],
-            "projects": [
-                {{
-                    "name": "Project name",
-                    "skills_used": "Technologies used"
-                }}
-            ],
-            "achievements": [
-                "Individual Achievement 1",
-                "Individual Achievement 2"
-            ],
-            "DOB": "YYYY-MM-DD or Not specified",
-            "gender": "Gender or Not specified",
-            "marital_status": "Status or Not specified",
-            "nationality": "Nationality or Not specified",
-            "current_position": "Current job title",
-            "current_employer": "Current employer name"
-        }}
-
-        Resume text to parse:
-        {text}
-        """
-    else:
-        # Simplified prompt for longer texts, focusing on essential information
-        return f"""
-        Parse this resume into a focused JSON format. Extract only the most important information.
-        
-        CRITICAL RULES:
-        1. Return ONLY valid JSON - no explanations or other text
-        2. All arrays must be properly formatted with NO extra commas or braces
-        3. Use "Not specified" for missing values instead of null or empty strings
-        4. Never include trailing commas in arrays or objects
-        5. All strings must use double quotes, not single quotes
-        6. Each skill, certification, and achievement must be a separate entry in its array
-        7. Check for skills synonyms eg Competencies, Skills, Technologies, Tools, etc. and consolidate them into a single skill entry
-        8. Dont take skills from experience section, take them from skills section
-        9. Skills must be individual entries for proper node creation 
-        10. Dont take skills from experience section, take them from skills section
-        11. If its a big line of text, take keywords from it.
-
-        Expected Structure:
-        {{
-            "name": "Candidate full name",
-            "education": [
-                {{
-                    "degree": "Exact degree name",
-                    "field": "Field of study",
-                    "institution": "Institution name",
-                    "year": "YYYY or YYYY-YYYY format"
-                }}
-            ],
-            "experience": [
-                {{
-                    "designation": "Exact job title",
-                    "work_at": "Company name",
-                    "years": "YYYY-YYYY or YYYY-Present",
-                    "worked_on": "Technologies worked on"
-                }}
-            ],
-            "number_of_years_of_experience": <integer>,
-            "professional_skills": [
-                "Individual Skill 1",
-                "Individual Skill 2"
-            ],
-            "certifications": [
-                {{
-                    "name": "Individual certification name",
-                    "year": "YYYY or Not specified",
-                    "id": "ID or Not specified"
-                }}
-            ],
-            "languages": [
-                "Individual Language 1",
-                "Individual Language 2"
-            ],
-            "projects": [
-                {{
-                    "name": "Project name",
-                    "skills_used": "Technologies used"
-                }}
-            ],
-            "achievements": [
-                "Individual Achievement 1",
-                "Individual Achievement 2"
-            ],
-            "DOB": "YYYY-MM-DD or Not specified",
-            "gender": "Gender or Not specified",
-            "marital_status": "Status or Not specified",
-            "nationality": "Nationality or Not specified",
-            "current_position": "Current job title",
-            "current_employer": "Current employer name"
-        }}
-
-        Resume text:
-        {text}
-        """
-
+    return text 
+   
 def retry_llm_with_json_fix(json_string: str, attempt: int = 1) -> Dict[str, Any]:
     """
     Sends the failed JSON back to LLM for reparsing, with up to 2 attempts
@@ -533,7 +487,7 @@ def retry_llm_with_json_fix(json_string: str, attempt: int = 1) -> Dict[str, Any
     {json_string}
     """
     
-    result = query_sambanova_llm(fix_prompt)
+    result = query_sambanova_llm(fix_prompt, 2)
     
     if "error" in result or not isinstance(result, dict):
         print(f"Attempt {attempt} failed, trying again..." if attempt < 2 else "All attempts failed")

@@ -11,7 +11,7 @@ logger = logging.getLogger(__name__)
 class GraphCreator:
     def __init__(self):
         # Neo4j connection settings
-        self.uri = "bolt://localhost:7687"
+        self.uri = "bolt://localhost:7687" #7474
         self.username = "neo4j"
         self.password = "Sagar1601"
         
@@ -196,7 +196,7 @@ class GraphCreator:
 
 def main():
     # Get the output folder path
-    output_folder = Path("output")
+    output_folder = Path("output-laptop")
     
     if not output_folder.exists():
         logger.error("Output folder not found!")
