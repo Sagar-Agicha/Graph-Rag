@@ -1,0 +1,109 @@
+{
+  "name": "Pratik Singh Thane",
+  "education": [
+    {
+      "degree": "Bsc. Computer Science",
+      "field": "Computer Science",
+      "institution": "Mumbai University",
+      "year": "2020"
+    },
+    {
+      "degree": "SSC(X)",
+      "field": "Not specified",
+      "institution": "New English High School, Badlapur",
+      "year": "2015"
+    },
+    {
+      "degree": "HSC(XII)",
+      "field": "Not specified",
+      "institution": "R. K. Talreja College, Ulhasnagar",
+      "year": "2017"
+    }
+  ],
+  "experience": [
+    {
+      "designation": "Senior Operations Executive",
+      "work_at": "Infosys Limited",
+      "years": "2020-Present",
+      "worked_on": "VMware Administration, Windows Administration"
+    }
+  ],
+  "number_of_years_of_experience": 2,
+  "professional_skills": [
+    "VMware Administration",
+    "Windows Administration",
+    "Teamwork",
+    "Quick learner",
+    "Creativity & Organized",
+    "Time-management",
+    "Flexible & Adaptable"
+  ],
+  "certifications": [
+    {
+      "name": "VMware vSphere 6.7 Administration",
+      "year": "Not specified",
+      "id": "Not specified"
+    },
+    {
+      "name": "Cloud & Virtualization Concepts",
+      "year": "Not specified",
+      "id": "Not specified"
+    },
+    {
+      "name": "VMware AZ 900 : Microsoft Azure Fundamentals",
+      "year": "Not specified",
+      "id": "Not specified"
+    },
+    {
+      "name": "Introduction to Cybersecurity",
+      "year": "Not specified",
+      "id": "Not specified"
+    },
+    {
+      "name": "Cisco Career Edge- Knockdown the Lockdown",
+      "year": "Not specified",
+      "id": "Not specified"
+    },
+    {
+      "name": "TCS Windows Administration",
+      "year": "Not specified",
+      "id": "Not specified"
+    }
+  ],
+  "languages": [
+    "English",
+    "Hindi",
+    "Marathi"
+  ],
+  "projects": [
+    {
+      "name": "Wintel",
+      "skills_used": "VMware Administration"
+    }
+  ],
+  "achievements": [
+    "Experienced in handling day to day activities & tasks as a VMware Administrator.",
+    "ESXi Host Availability Monitoring, ESXi Host Performance Monitoring (Memory, CPU, Datastore utilization and fetching timley reports as requested)",
+    "ESXi Host Hardware Monitoring, ESXi Host Capacity Monitoring- Datastores and Datastore Clusters",
+    "VMware Snapshot management (Creation, deletion and reversion of snapshots as per runbooks)",
+    "Creation of VM Hull, configuration and troubleshooting issues related to virtual machines.",
+    "Adjustment of VM resources such as CPU/RAM/Hard Drives, Network Adapters, CD/DVD drives, etc.",
+    "VMware-Tool upgrades as well as updating the hardware compatibility of Virtual Machines.",
+    "Performing vMotion & s-vMotion as per requirements.",
+    "vRops Monitoring & Managing vCenter Alarms related to ESXi Hosts, Datastores, DS Clusters, Certificates, etc.",
+    "Basic knowledge on updating, upgrading of ESXi hosts and VCenter servers.",
+    "VMware Cluster management (HA , DRS)",
+    "Basic knowledge of Exporting and deployment of VM from OVA, OVF templates, creation of clones & golden/master image.",
+    "Daily troubleshooting activities related to VMs accessibility, availability and performance.",
+    "Experience of working in 24x7 production support environment.",
+    "Experience with ticketing tools like ServiceNow, Remedy and basic knowledge on ITIL."
+  ],
+  "DOB": "Not specified",
+  "gender": "Not specified",
+  "marital_status": "Not specified",
+  "nationality": "Not specified",
+  "current_position": "Senior Operations Executive",
+  "current_employer": "Infosys Limited",
+  "email": "",
+  "skills": []
+}

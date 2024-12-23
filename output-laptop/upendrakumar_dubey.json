@@ -1,0 +1,138 @@
+{
+  "name": "Upendrakumar Dubey",
+  "education": [
+    {
+      "degree": "Master of Science in IT",
+      "field": "IT",
+      "institution": "Ramniranjan Jhunjhunwala College",
+      "year": "2018-20"
+    },
+    {
+      "degree": "Bachelor of Science in IT",
+      "field": "IT",
+      "institution": "Mumbai University",
+      "year": "2013-16"
+    },
+    {
+      "degree": "HSC",
+      "field": "Science",
+      "institution": "MAHARSHTRA BOARD",
+      "year": "2011-13"
+    },
+    {
+      "degree": "SSC",
+      "field": "Science",
+      "institution": "MAHARSHTRA BOARD",
+      "year": "2010-11"
+    }
+  ],
+  "experience": [
+    {
+      "designation": "Cloud Engineer",
+      "work_at": "Inspira Enterprise Pvt Ltd",
+      "years": "2020 Sep – Till Present",
+      "worked_on": "VMware Solution, VROPS, VRLI, SRM Implementation and Administrator, vCenter Server Implementation and Administration"
+    },
+    {
+      "designation": "Project Engineer",
+      "work_at": "Wipro InfoTech",
+      "years": "2017 MAR – 2020 SEP",
+      "worked_on": "Design, implementation of VMware Virtualization environment and brake fixing of all CISCO UCS class and Blade Servers, configuration, Different Vendor Server Implementation"
+    }
+  ],
+  "number_of_years_of_experience": 5,
+  "professional_skills": [
+    "Red Hat",
+    "VMware",
+    "Cisco UCS",
+    "Linux",
+    "Windows",
+    "Networking",
+    "Cloud Computing",
+    "Virtualization"
+  ],
+  "certifications": [
+    {
+      "name": "Certified Ethical Hacker",
+      "year": "Not specified",
+      "id": "Not specified"
+    },
+    {
+      "name": "Microsoft Azure50 -730",
+      "year": "Not specified",
+      "id": "Not specified"
+    },
+    {
+      "name": "AWS Solution Architecture",
+      "year": "Not specified",
+      "id": "Not specified"
+    },
+    {
+      "name": "Nutanix Certified Systems Engineer (NCSE) Architecture Essentials",
+      "year": "Not specified",
+      "id": "Not specified"
+    },
+    {
+      "name": "Enterprise Cloud Administration (ECA) 5.5 Online Course",
+      "year": "Not specified",
+      "id": "Not specified"
+    }
+  ],
+  "languages": [
+    "English",
+    "Hindi",
+    "Marathi"
+  ],
+  "projects": [
+    {
+      "name": "Vodafone GDSP",
+      "skills_used": "VMware Environment with Windows Server 2012 R2 and RHEL Installation and Configuration"
+    },
+    {
+      "name": "Aditya Birla Group",
+      "skills_used": "Migration of 300 TB of data from Netapp 2240, 3210, 3220 on Nimble Storage by svMotion and vSphere Replication"
+    },
+    {
+      "name": "Sun Pharma",
+      "skills_used": "Implementation of Swing Kit and vSphere Replication Configuration"
+    },
+    {
+      "name": "Star India",
+      "skills_used": "Migration of Whole Datacenter from One Place to another Place"
+    },
+    {
+      "name": "HDFC",
+      "skills_used": "Implementation of CISCO Rack Server. (UCSM240)"
+    },
+    {
+      "name": "Reserve Bank of India",
+      "skills_used": "Newly Implemented CISCO UCS M240 in all Regional Office of RBI (i.e.,39Sites)"
+    },
+    {
+      "name": "Vodafone Sevone",
+      "skills_used": "VMware Administration"
+    },
+    {
+      "name": "State Bank of India (NGSOC)",
+      "skills_used": "VMware Administration"
+    }
+  ],
+  "achievements": [
+    "Designed and implemented the Infra for newly Setup Environment",
+    "Implementation of HP Synergy chassis with the help of team",
+    "Created VMware Environment with Windows Server 2012 R2 and RHEL Installation and Configuration",
+    "Migration of 300 TB of data from Netapp 2240, 3210, 3220 on Nimble Storage by svMotion and vSphere Replication",
+    "Implementation of Swing Kit and vSphere Replication Configuration",
+    "Migration of Whole Datacenter from One Place to another Place",
+    "Implementation of CISCO Rack Server. (UCSM240)",
+    "Newly Implemented CISCO UCS M240 in all Regional Office of RBI (i.e.,39Sites)"
+  ],
+  "DOB": "6th May 1996",
+  "gender": "Not specified",
+  "marital_status": "Never Married",
+  "nationality": "Indian",
+  "current_position": "Cloud Engineer",
+  "current_employer": "Inspira Enterprise Pvt Ltd",
+  "email": "",
+  "skills": []
+}

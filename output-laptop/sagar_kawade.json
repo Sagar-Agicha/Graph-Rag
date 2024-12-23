@@ -1,0 +1,71 @@
+{
+  "name": "Sagar Kawade",
+  "education": [
+    {
+      "degree": "BE, Information Technology",
+      "field": "Information Technology",
+      "institution": "University of Mumba",
+      "year": "2017"
+    },
+    {
+      "degree": "Diploma in Information Technology",
+      "field": "Information Technology",
+      "institution": "MSBTE",
+      "year": "2014"
+    }
+  ],
+  "experience": [
+    {
+      "designation": "Senior Analyst",
+      "work_at": "Capgemini India Pvt Ltd",
+      "years": "Nov 2017 till Feb 2020",
+      "worked_on": "Windows Server Administration, VMware Administration, HyperV Administration, Microsoft Azure Administration"
+    },
+    {
+      "designation": "System Administrator",
+      "work_at": "eClinicalWork India Ltd",
+      "years": "Feb 2020 to June 2021",
+      "worked_on": "CentOS 6/7, Windows 2012/R2/2016, VMware Infrastructure, Azure Cloud"
+    },
+    {
+      "designation": "Associate Consultant",
+      "work_at": "Datamatics Global Services Limited",
+      "years": "June 2021 until present",
+      "worked_on": "MS Azure Administration, VMware 6.7, Windows 2012/R2/2016, VMware Horizon VDI, F5 Load Balancers, CISCO UCS"
+    }
+  ],
+  "professional_skills": [
+    "Windows Server Administration",
+    "VMware Administration",
+    "HyperV Administration",
+    "Microsoft Azure Administration",
+    "Cloud Administration",
+    "Windows Active Directory",
+    "DNS",
+    "DHCP",
+    "Cluster",
+    "VMware vSphere administration",
+    "ITIL Incident Management",
+    "ITIL Problem Management",
+    "ITIL Change Management",
+    "Customer relationship development",
+    "Ability to work under pressure",
+    "Decision making",
+    "Root Cause Analysis",
+    "Server Audit",
+    "Hardware Analysis",
+    "Capacity Analysis",
+    "F5 Load Balancers",
+    "CISCO UCS",
+    "AppDynamics",
+    "New Relic",
+    "Solarwind",
+    "Splunk"
+  ],
+  "languages": [
+    "English",
+    "Hindi",
+    "Marathi"
+  ],
+  "email": ""
+}

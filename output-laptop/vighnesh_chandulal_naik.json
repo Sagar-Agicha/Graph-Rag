@@ -1,0 +1,107 @@
+{
+  "name": "Vighnesh Chandulal Naik",
+  "education": [
+    {
+      "degree": "B.C.A (BACHELOR OF COMPUTER APPLICATION)",
+      "field": "Computer Application",
+      "institution": "Tilak Maharashtra University",
+      "year": "Not specified"
+    },
+    {
+      "degree": "H.S.C (SCIENCE)",
+      "field": "Science",
+      "institution": "Maharashtra State Board",
+      "year": "Not specified"
+    },
+    {
+      "degree": "S.S.C",
+      "field": "Not specified",
+      "institution": "Maharashtra State Board",
+      "year": "Not specified"
+    }
+  ],
+  "experience": [
+    {
+      "designation": "VMWare Administrator",
+      "work_at": "Dynacons Technology Pvt Ltd",
+      "years": "Sep 2021 – Present",
+      "worked_on": "VMware installation features, OS: WIN 7/10, Server: 2012/2016/2019/2022R2, Remote Application: Any desk, Zoho Antivirus: McAfee, Symantec, MCSE: Active Directory, DNS Server, DHCP Server, FSMO Role, Failover Cluster, RAID Storage, Group Policy, Backup of AD and Server, Creation of RDC/PDC, ADC, CDC and RODC, WSUS configuration, Creation of Site and Subnet, Delegation control"
+    },
+    {
+      "designation": "Desktop Engineer",
+      "work_at": "Epicenter Technology Pvt. Ltd.",
+      "years": "April 2021 – August 2022",
+      "worked_on": "VMware installation features, OS: WIN 7/10, Server: 2012/2016/2019/2022R2, Remote Application: Any desk, Zoho Antivirus: McAfee, Symantec, MCSE: Active Directory, DNS Server, DHCP Server, FSMO Role, Failover Cluster, RAID Storage, Group Policy, Backup of AD and Server, Creation of RDC/PDC, ADC, CDC and RODC, WSUS configuration, Creation of Site and Subnet, Delegation control"
+    },
+    {
+      "designation": "Desktop Engineer",
+      "work_at": "Concentrix Pvt. Ltd.",
+      "years": "August 2018 – March 2021",
+      "worked_on": "VMware installation features, OS: WIN 7/10, Server: 2012/2016/2019/2022R2, Remote Application: Any desk, Zoho Antivirus: McAfee, Symantec, MCSE: Active Directory, DNS Server, DHCP Server, FSMO Role, Failover Cluster, RAID Storage, Group Policy, Backup of AD and Server, Creation of RDC/PDC, ADC, CDC and RODC, WSUS configuration, Creation of Site and Subnet, Delegation control"
+    },
+    {
+      "designation": "IT Executive",
+      "work_at": "Maanai Tours & Travels",
+      "years": "February 2016 – July 2018",
+      "worked_on": "Phone installation and configuration, Software troubleshooting of operations, Creating and maintain data, Knowledge of peripheral installation, configuration and troubleshooting, Fault finding and troubleshooting on Laptop and Desktop, Network related issue finding and troubleshooting, MS Outlook Configuration"
+    },
+    {
+      "designation": "Desktop Engineer -L2",
+      "work_at": "Wipro Pvt. Ltd.",
+      "years": "February 2014-2015",
+      "worked_on": "Experience end users applications and hands on experience on WIN 7/8, Sound knowledge of peripheral installation, configuration and troubleshooting, Fault finding and troubleshooting on Laptop and Desktop, Providing desktop support, Diagnosing and resolving technical issue, Server backup, Installing and troubleshoot software, Handling client issue, System and Laptop formatting and OS installation and configuration, MS Outlook Configuration"
+    }
+  ],
+  "number_of_years_of_experience": 7,
+  "professional_skills": [
+    "VMware installation features",
+    "OS: WIN 7/10, Server: 2012/2016/2019/2022R2",
+    "Remote Application: Any desk",
+    "Zoho Antivirus: McAfee, Symantec",
+    "MCSE: Active Directory, DNS Server, DHCP Server, FSMO Role, Failover Cluster, RAID Storage, Group Policy, Backup of AD and Server, Creation of RDC/PDC, ADC, CDC and RODC, WSUS configuration, Creation of Site and Subnet, Delegation control",
+    "MS-Office: 2010/2013/2016(O365)"
+  ],
+  "certifications": [
+    {
+      "name": "VMWare Certified Professional – Data Center Virtualization 2022 (VCP-DCV)",
+      "year": "2022",
+      "id": "Not specified"
+    },
+    {
+      "name": "MCSE",
+      "year": "Not specified",
+      "id": "Not specified"
+    },
+    {
+      "name": "Microsoft Azure Online Training",
+      "year": "Not specified",
+      "id": "Not specified"
+    },
+    {
+      "name": "MS-CIT Certified",
+      "year": "Not specified",
+      "id": "Not specified"
+    }
+  ],
+  "languages": [
+    "English",
+    "Hindi"
+  ],
+  "projects": [
+    {
+      "name": "Not specified",
+      "skills_used": "VMware installation features, OS: WIN 7/10, Server: 2012/2016/2019/2022R2, Remote Application: Any desk, Zoho Antivirus: McAfee, Symantec, MCSE: Active Directory, DNS Server, DHCP Server, FSMO Role, Failover Cluster, RAID Storage, Group Policy, Backup of AD and Server, Creation of RDC/PDC, ADC, CDC and RODC, WSUS configuration, Creation of Site and Subnet, Delegation control"
+    }
+  ],
+  "achievements": [
+    "Not specified"
+  ],
+  "DOB": "Not specified",
+  "gender": "Not specified",
+  "marital_status": "Not specified",
+  "nationality": "Indian",
+  "current_position": "VMWare Administrator",
+  "current_employer": "Dynacons Technology Pvt Ltd",
+  "email": "",
+  "skills": []
+}

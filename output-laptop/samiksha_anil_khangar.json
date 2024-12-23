@@ -1,0 +1,52 @@
+{
+  "name": "Samiksha Anil Khangar",
+  "education": [
+    {
+      "degree": "B.E in Electronics",
+      "field": "Electronics",
+      "institution": "Nagpur University",
+      "year": "2017-2020"
+    },
+    {
+      "degree": "Diploma in Electronics and Telecommunication",
+      "field": "Electronics and Telecommunication",
+      "institution": "MSBTE",
+      "year": "2015-2017"
+    }
+  ],
+  "experience": [
+    {
+      "designation": "Linux Administrator",
+      "work_at": "Allegiance Consultancy Services Pvt. Ltd, Pune",
+      "years": "2021-Present",
+      "worked_on": "Linux, AWS, Virtualization, MySQL, Nagios, Apache, Postfix, Citrix"
+    },
+    {
+      "designation": "Linux Admin",
+      "work_at": "Sparsh Electronics Pvt. Ltd, Pune",
+      "years": "2020-2021",
+      "worked_on": "Linux, YUM, user and group management, Rsync, FTP"
+    }
+  ],
+  "professional_skills": [
+    "Linux",
+    "AWS",
+    "Virtualization",
+    "MySQL",
+    "Nagios",
+    "Apache",
+    "Postfix",
+    "Citrix",
+    "YUM",
+    "user and group management",
+    "Rsync",
+    "FTP",
+    "English",
+    "Hindi",
+    "Marathi"
+  ],
+  "DOB": "1997-11-20",
+  "gender": "Female",
+  "marital_status": "Married",
+  "email": ""
+}

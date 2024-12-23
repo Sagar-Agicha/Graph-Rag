@@ -4,11 +4,17 @@ from typing import Dict, Any
 import easyocr
 import re
 import time
+<<<<<<< HEAD
+=======
+import dotenv
+import openai
+>>>>>>> 8f4aaa8cd30d0440a393516c7d09193136e45b13
 import pytesseract
 from pdf2image import convert_from_path
 import numpy as np
 from PyPDF2 import PdfReader
 import spacy
+<<<<<<< HEAD
 import requests
 
 pytesseract.pytesseract.tesseract_cmd = r"C:\Users\Sagar\AppData\Local\Programs\Tesseract-OCR\tesseract.exe"
@@ -20,6 +26,26 @@ if os.name == 'nt':  # Windows
     POPPLER_PATH = r"C:\Users\Sagar\Downloads\Release-24.08.0-0\poppler-24.08.0\Library\bin"
     os.environ["PATH"] += os.pathsep + POPPLER_PATH
 
+=======
+import transformers
+import torch
+
+pytesseract.pytesseract.tesseract_cmd = r"/usr/bin/tesseract"
+
+model_id = "meta-llama/Llama-3.1-8B-Instruct"
+
+pipeline = transformers.pipeline(
+    "text-generation",
+    model=model_id,
+    model_kwargs={"torch_dtype": torch.float32},
+    device_map="auto",
+)
+
+dotenv.load_dotenv()
+# Load spaCy model
+nlp = spacy.load("en_core_web_md")
+
+>>>>>>> 8f4aaa8cd30d0440a393516c7d09193136e45b13
 def find_synonyms(word, top_n=5):
     # Use spaCy to find similar words
     word_vector = nlp(word).vector
@@ -223,6 +249,7 @@ def query_sambanova_llm(text_resume: str, flag) -> Dict[str, Any]:
             - Remove any optional fields that lack meaningful data
             - Keep only fields with actual content
                 """
+<<<<<<< HEAD
     
     url = "https://evanescence-barcelona-under-whole.trycloudflare.com/process"
 
@@ -236,6 +263,19 @@ def query_sambanova_llm(text_resume: str, flag) -> Dict[str, Any]:
     response = requests.post(url, json=data)
 
     result = response.json()
+=======
+
+    messages = [
+        {"role": "system", "content": prompt_json},
+        {"role": "user", "content": text_resume},
+    ]
+
+    outputs = pipeline(
+        messages,
+        max_new_tokens=1024*2,
+    )
+    result = outputs[0]["generated_text"][-1]
+>>>>>>> 8f4aaa8cd30d0440a393516c7d09193136e45b13
     result = result['content']
         
     try:

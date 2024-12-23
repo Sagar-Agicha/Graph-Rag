@@ -1,0 +1,91 @@
+{
+  "name": "Nilesh A. Dabholkar",
+  "education": [
+    {
+      "degree": "T. Y. B. Com",
+      "field": "Commerce",
+      "institution": "Mumbai University",
+      "year": "2007"
+    },
+    {
+      "degree": "HSC",
+      "field": "Science",
+      "institution": "Mumbai University",
+      "year": "2004"
+    },
+    {
+      "degree": "SSC",
+      "field": "Not specified",
+      "institution": "Mumbai Board",
+      "year": "2002"
+    }
+  ],
+  "experience": [
+    {
+      "designation": "VMware Administrator",
+      "work_at": "eClerx Services Limited",
+      "years": "2012-Present",
+      "worked_on": "VMware vSphere, Microsoft Windows Server 2012 & 2016, Microsoft Windows XP, Windows 7, Windows 8, Windows 10, MAC OS"
+    },
+    {
+      "designation": "Desktop Support Engineer",
+      "work_at": "Adecco India",
+      "years": "2011-2012",
+      "worked_on": "Microsoft Windows, Microsoft Exchange Server, Microsoft Outlook, Citrix, Blackberry Mobile, Dropbox, VPN"
+    },
+    {
+      "designation": "Trainee NOC Support Engineer",
+      "work_at": "Zenith InfoTech Ltd",
+      "years": "2008-2011",
+      "worked_on": "Local Area Network, Zenith SAAS software"
+    }
+  ],
+  "number_of_years_of_experience": 12,
+  "professional_skills": [
+    "Installing, Configuring, and Administering Microsoft Windows XP, Windows 7, Windows 8, Windows 10, and MAC OS",
+    "Managing and Maintaining a Microsoft Windows Server 2012 & 2016",
+    "VMware vSphere",
+    "Microsoft Exchange Server",
+    "Microsoft Outlook",
+    "Citrix",
+    "Blackberry Mobile",
+    "Dropbox",
+    "VPN",
+    "Local Area Network",
+    "Zenith SAAS software"
+  ],
+  "certifications": [
+    {
+      "name": "Cisco Certified Network Associate",
+      "year": "Not specified",
+      "id": "CSCO11795162"
+    },
+    {
+      "name": "VMware vSphere Training",
+      "year": "Not specified",
+      "id": "Not specified"
+    }
+  ],
+  "languages": [
+    "English",
+    "Hindi",
+    "Marathi"
+  ],
+  "projects": [
+    {
+      "name": "Not specified",
+      "skills_used": "VMware vSphere, Microsoft Windows Server 2012 & 2016, Microsoft Windows XP, Windows 7, Windows 8, Windows 10, MAC OS"
+    }
+  ],
+  "achievements": [
+    "Not specified"
+  ],
+  "DOB": "01-11-11-1984",
+  "gender": "Male",
+  "marital_status": "Married",
+  "nationality": "Indian",
+  "current_position": "VMware Administrator",
+  "current_employer": "eClerx Services Limited",
+  "email": "",
+  "skills": []
+}

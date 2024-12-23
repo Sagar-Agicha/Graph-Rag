@@ -1,0 +1,74 @@
+{
+  "name": "Pooja Shashank Rane",
+  "education": [
+    {
+      "degree": "B.E. EXTC",
+      "field": "EXTC",
+      "institution": "D.J. Sanghvi College of Engineering",
+      "year": "2014-2017"
+    }
+  ],
+  "experience": [
+    {
+      "designation": "L2 Operations Engineer",
+      "work_at": "Anunta technologies",
+      "years": "2017-Present",
+      "worked_on": "Citrix(Xenserver and Delivery components), VMware (ESXi and horizon), Nutanix, and Azure platform"
+    }
+  ],
+  "number_of_years_of_experience": 6,
+  "professional_skills": [
+    "Windows Server",
+    "Citrix Xenapp",
+    "Citrix Xendesktop",
+    "Citrix Xenserver",
+    "Provisioning Services",
+    "Machine Creation Services",
+    "Vmware",
+    "Active Directory",
+    "Networking",
+    "Citrix NetScaler",
+    "Citrix Storefront",
+    "Citrix Director",
+    "Nutanix",
+    "Microsoft Azure"
+  ],
+  "certifications": [
+    {
+      "name": "Certificate in VMware Foundation 6.7",
+      "year": "Not specified",
+      "id": "Not specified"
+    },
+    {
+      "name": "Microsoft ethical Hacking Certificate",
+      "year": "Not specified",
+      "id": "Not specified"
+    }
+  ],
+  "languages": [
+    "English"
+  ],
+  "projects": [
+    {
+      "name": "Citrix XenDesktop applications 7.15/7.19",
+      "skills_used": "Citrix Xenserver, Provisioning Services, Machine Creation Services, Vmware"
+    }
+  ],
+  "achievements": [
+    "Start Performer",
+    "Risk Tacker",
+    "Employee of the Quarter",
+    "Leader in Making",
+    "Spot Award for completing all Critical activity",
+    "Spot award for SSO Migration",
+    "Received appreciation from Clients for resolving the complicated user-level issues"
+  ],
+  "DOB": "Not specified",
+  "gender": "Not specified",
+  "marital_status": "Not specified",
+  "nationality": "Indian",
+  "current_position": "L2 Operations Engineer",
+  "current_employer": "Anunta technologies",
+  "email": "",
+  "skills": []
+}

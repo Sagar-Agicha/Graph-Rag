@@ -1,0 +1,55 @@
+{
+  "name": "Siraj Sayyed",
+  "education": [
+    {
+      "degree": "BACHELOR OF COMMERCE (B.COM)",
+      "field": "Commerce",
+      "institution": "MUMBAI UNIVERSITY",
+      "year": "April 2015"
+    },
+    {
+      "degree": "HIGHER SECONDARY CERTIFICATE (HSC)",
+      "field": "Higher Secondary",
+      "institution": "Central Board of Higher Education",
+      "year": "March 2011"
+    },
+    {
+      "degree": "SECONDARY SCHOOL CERTIFICATE (SSC)",
+      "field": "Secondary",
+      "institution": "Central Board of Higher Education",
+      "year": "March 2006"
+    }
+  ],
+  "experience": [
+    {
+      "designation": "Desktop Engineer",
+      "work_at": "e",
+      "years": "Not specified",
+      "worked_on": "Windows 10, Windows Server 2012, Windows Server 2016, Microsoft Office, Utility Software"
+    }
+  ],
+  "number_of_years_of_experience": 5,
+  "professional_skills": [
+    "Hardware and Networking",
+    "MS-Word",
+    "MS-Excel",
+    "MS-PowerPoint"
+  ],
+  "certifications": [],
+  "languages": [
+    "English",
+    "Hindi",
+    "Urdu",
+    "Marathi"
+  ],
+  "projects": [],
+  "achievements": [],
+  "DOB": "19th Jan 1991",
+  "gender": "Male",
+  "marital_status": "Married",
+  "nationality": "India",
+  "current_position": "Desktop Engineer",
+  "current_employer": "e",
+  "email": "",
+  "skills": []
+}
