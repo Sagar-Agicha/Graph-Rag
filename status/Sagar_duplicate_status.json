@@ -1,0 +1,37 @@
+{
+  "uploaded_file": {
+    "name": "Meraj Farooqui",
+    "dob": "1994-04-18",
+    "current_position": "L1 Citrix / VM Ware Support Engineer",
+    "unique_number": 38,
+    "path": "uploads\\Sagar\\38_Meraj_Farooqui_VMware_Admin.pdf"
+  },
+  "duplicates": [
+    {
+      "name": "Meraj Farooqui",
+      "unique_number": 35,
+      "similarity": 100.0,
+      "details": {
+        "dob": "1994-04-18",
+        "current_position": "L1 Citrix / VM Ware Support Engineer",
+        "current_employer": "IMSI Staffing Pvt Ltd",
+        "pdf_path": "processed\\35_Meraj_Farooqui_VMware_Admin.pdf",
+        "json_path": null
+      }
+    },
+    {
+      "name": "Meraj Farooqui",
+      "unique_number": "",
+      "similarity": 100.0,
+      "details": {
+        "dob": "1994-04-18",
+        "current_position": "L1 Citrix / VM Ware Support Engineer",
+        "current_employer": "IMSI Staffing Pvt Ltd",
+        "pdf_path": "processed\\0000001_Kalim_Khan_VMware_Admin.pdf",
+        "json_path": null
+      }
+    }
+  ],
+  "timestamp": "2024-12-23T12:04:43.591103",
+  "status": "pending_review"
+}

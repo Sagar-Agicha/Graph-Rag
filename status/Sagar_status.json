@@ -1,0 +1,79 @@
+[
+    {
+        "filename": "0000028_Sachin_kurhade_duplicate.pdf",
+        "status": "duplicate",
+        "file_link": "/uploads/Sagar/0000028_Sachin_kurhade_duplicate.pdf",
+        "last_updated": "2024-12-21T16:49:20.777509",
+        "duplicate_count": 3
+    },
+    {
+        "filename": "0000029_Sachin_kurhade_duplicate.pdf",
+        "status": "duplicate",
+        "file_link": "/uploads/Sagar/0000029_Sachin_kurhade_duplicate.pdf",
+        "last_updated": "2024-12-21T17:19:50.076713",
+        "duplicate_count": 3
+    },
+    {
+        "filename": "0000030_Meraj_Farooqui_VMware_Admin.pdf",
+        "status": "duplicate",
+        "file_link": "/uploads/Sagar/0000030_Meraj_Farooqui_VMware_Admin.pdf",
+        "last_updated": "2024-12-22T10:15:58.623608",
+        "duplicate_count": 3
+    },
+    {
+        "filename": "0000031_Sachin_kurhade_duplicate.pdf",
+        "status": "processing",
+        "file_link": "/uploads/Sagar/0000031_Sachin_kurhade_duplicate.pdf",
+        "last_updated": "2024-12-22T11:57:53.561424"
+    },
+    {
+        "filename": "0000032_Meraj_Farooqui_VMware_Admin.pdf",
+        "status": "processing",
+        "file_link": "/uploads/Sagar/0000032_Meraj_Farooqui_VMware_Admin.pdf",
+        "last_updated": "2024-12-22T18:59:41.982907"
+    },
+    {
+        "filename": "33_Meraj_Farooqui_VMware_Admin.pdf",
+        "status": "completed",
+        "file_link": "/uploads/Sagar/33_Meraj_Farooqui_VMware_Admin.pdf",
+        "last_updated": "2024-12-22T22:06:42.228648"
+    },
+    {
+        "filename": "34_Meraj_Farooqui_VMware_Admin.pdf",
+        "status": "processing",
+        "file_link": "/uploads/Sagar/34_Meraj_Farooqui_VMware_Admin.pdf",
+        "last_updated": "2024-12-22T22:07:42.696886"
+    },
+    {
+        "filename": "35_Meraj_Farooqui_VMware_Admin.pdf",
+        "status": "completed",
+        "file_link": "/uploads/Sagar/35_Meraj_Farooqui_VMware_Admin.pdf",
+        "last_updated": "2024-12-22T23:15:47.681623"
+    },
+    {
+        "filename": "36_Meraj_Farooqui_VMware_Admin.pdf",
+        "status": "processing",
+        "file_link": "/uploads/Sagar/36_Meraj_Farooqui_VMware_Admin.pdf",
+        "last_updated": "2024-12-23T10:46:09.468568"
+    },
+    {
+        "filename": "37_Meraj_Farooqui_VMware_Admin.pdf",
+        "status": "duplicate",
+        "file_link": "/uploads/Sagar/37_Meraj_Farooqui_VMware_Admin.pdf",
+        "last_updated": "2024-12-23T11:20:32.988962",
+        "duplicate_count": 4
+    },
+    {
+        "filename": "38_Meraj_Farooqui_VMware_Admin.pdf",
+        "status": "duplicate",
+        "file_link": "/uploads/Sagar/38_Meraj_Farooqui_VMware_Admin.pdf",
+        "last_updated": "2024-12-23T12:04:43.660352",
+        "duplicate_count": 2
+    },
+    {
+        "filename": "39_VISHAL_LOKHANDE_VMware_Admin.pdf",
+        "status": "completed",
+        "file_link": "/uploads/Sagar/39_VISHAL_LOKHANDE_VMware_Admin.pdf",
+        "last_updated": "2024-12-23T12:12:18.193942"
+    }
+]

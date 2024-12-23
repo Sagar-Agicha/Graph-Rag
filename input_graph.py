@@ -1,6 +1,5 @@
 from neo4j import GraphDatabase
 import json
-import os
 from pathlib import Path
 import logging
 

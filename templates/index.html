@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>PDF Chat Interface</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="static/css/style.css">
+    <script src="static/js/script.js"></script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/transitions.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-content">
+            <div class="logo-section">
+                <h1 style="color: white; margin: 0;">
+                    <i class="fas fa-robot" style="color: #ff2233; margin-right: 10px;"></i>
+                    AI Document Assistant
+                </h1>
+            </div>
+            <nav class="nav-links">
+                <button class="status-btn nav-button" type="button">
+                    <i class="fas fa-tasks" style="margin-right: 5px;"></i>
+                    Status
+                </button>
+                <a href="{{ url_for('duplicates') }}" class="nav-link">
+                    <i class="fas fa-copy" style="margin-right: 5px;"></i>
+                    Duplicates
+                    {% if duplicate_count > 0 %}
+                        <span class="duplicate-badge">{{ duplicate_count }}</span>
+                    {% endif %}
+                </a>
+                <div class="user-section">
+                    <span class="username">
+                        <i class="fas fa-user" style="margin-right: 5px;"></i>
+                        {{ username }}
+                    </span>
+                    <a href="{{ url_for('logout') }}" class="nav-link">
+                        <i class="fas fa-sign-out-alt" style="margin-right: 5px;"></i>
+                        Logout
+                    </a>
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main>
+        <div id="file-upload">
+            <div class="cyber-corner top-left"></div>
+            <div class="cyber-corner top-right"></div>
+            <div class="cyber-corner bottom-left"></div>
+            <div class="cyber-corner bottom-right"></div>
+            
+            <h2>Upload PDFs</h2>
+            <div class="file-upload-wrapper">
+                <input type="file" id="pdf-file" accept=".pdf" multiple onchange="handleFileSelect()">
+                <label for="pdf-file" class="file-upload-button">
+                    <span class="upload-icon"></span>
+                    Choose Files
+                </label>
+            </div>
+            
+            <!-- Preview container will show selected file names -->
+            <div id="preview-container"></div>
+            
+            <!-- This is where uploaded files will stack -->
+            <div id="uploaded-files">
+                <h3>Uploaded Files:</h3>
+                <div id="file-list"></div>
+            </div>
+        </div>
+
+        <div id="chat-interface">
+            <h2>Chat</h2>
+            <div id="chat-container"></div>
+            <input type="text" id="user-input" placeholder="Type your message..." style="width: 80%">
+            <button onclick="sendMessage()">Send</button>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-info">
+                <p>© 2024 AI Document Assistant</p>
+                <p>Powered by Advanced AI Technology</p>
+            </div>
+            <div class="footer-links">
+                <a href="#" class="footer-link">Terms of Service</a>
+                <a href="#" class="footer-link">Privacy Policy</a>
+                <a href="#" class="footer-link">Contact Support</a>
+            </div>
+        </div>
+    </footer>
+    <script type="module" src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.esm.js"></script>
+    <script nomodule src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.js"></script>
+    <div class="page-transition">
+        <div class="transition-line horizontal" style="top: 0"></div>
+        <div class="transition-line horizontal" style="bottom: 0"></div>
+        <div class="transition-line vertical" style="left: 0"></div>
+        <div class="transition-line vertical" style="right: 0"></div>
+        <div class="glitch-text">Loading...</div>
+    </div>
+
+    <script>
+        // Add this to handle page loads and navigation
+        document.addEventListener('DOMContentLoaded', () => {
+            const transition = document.querySelector('.page-transition');
+            const lines = document.querySelectorAll('.transition-line');
+            
+            // Only show entry animation if we're not coming from another page
+            if (!document.referrer.includes(window.location.host)) {
+                transition.classList.add('active');
+                lines.forEach(line => line.classList.add('active'));
+                
+                setTimeout(() => {
+                    transition.classList.remove('active');
+                    lines.forEach(line => line.classList.remove('active'));
+                }, 1000);
+            }
+        });
+
+        // Add this to handle navigation links
+        document.querySelectorAll('a').forEach(link => {
+            link.addEventListener('click', (e) => {
+                if (!link.hasAttribute('target')) {  // Don't animate if opening in new tab
+                    e.preventDefault();
+                    const transition = document.querySelector('.page-transition');
+                    const lines = document.querySelectorAll('.transition-line');
+                    
+                    transition.classList.add('active');
+                    lines.forEach(line => line.classList.add('active'));
+                    
+                    setTimeout(() => {
+                        window.location.href = link.href;
+                    }, 1000);
+                }
+            });
+        }); 
+
+        // Add this to your existing JavaScript
+        function updateDuplicateCounter(count) {
+            // Find the duplicate badge in the header
+            const duplicateLink = document.querySelector('a[href*="duplicates"]');
+            if (duplicateLink) {
+                // Remove existing badge if any
+                const existingBadge = duplicateLink.querySelector('.duplicate-badge');
+                if (existingBadge) {
+                    existingBadge.remove();
+                }
+                
+                // Add new badge if count > 0
+                if (count > 0) {
+                    const badge = document.createElement('span');
+                    badge.className = 'duplicate-badge';
+                    badge.textContent = count;
+                    duplicateLink.appendChild(badge);
+                }
+            }
+        }
+
+        function checkProcessingStatus() {
+            fetch('/processing-status')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.error) {
+                        console.error('Error:', data.error);
+                        return;
+                    }
+                    
+                    // Update duplicate badge if count is available
+                    if (data.duplicate_count !== undefined) {
+                        updateDuplicateCounter(data.duplicate_count);
+                    }
+                    
+                    // Update status display
+                    const statusData = data.status_data || [];
+                    
+                    // Check for duplicate status and update counter
+                    statusData.forEach(status => {
+                        if (status.status === "duplicate" && status.duplicate_count !== undefined) {
+                            updateDuplicateCounter(status.duplicate_count);
+                        }
+                    });
+                })
+                .catch(error => console.error('Error:', error));
+        }
+
+        // Check status more frequently during file processing
+        setInterval(checkProcessingStatus, 1000); // Check every second
+    </script>
+
+    <!-- Status Modal -->
+    <div id="statusModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Processing Status</h2>
+                <span class="close-modal">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="status-table-container">
+                    <table class="status-table">
+                        <thead>
+                            <tr>
+                                <th>Filename</th>
+                                <th>Status</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="statusTableBody">
+                            <!-- Status data will be inserted here -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html> 

@@ -4,10 +4,6 @@ from neo4j import GraphDatabase
 import logging
 from typing import Dict, List, Any
 import json
-import networkx as nx
-import dotenv
-
-dotenv.load_dotenv()
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -21,8 +17,8 @@ class GraphSearcher:
         
         # Sambanova settings
         self.client = openai.OpenAI(
-            api_key=os.getenv("SAMBANOVA_API_KEY"),
-            base_url=os.getenv("SAMBANOVA_BASE_URL")
+            api_key=os.environ.get("SAMBANOVA_API_KEY"),
+            base_url=os.environ.get("SAMBANOVA_BASE_URL")
         )
 
         try:
