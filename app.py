@@ -1356,14 +1356,24 @@ def duplicates():
                          username=session['username'],
                          files=files)
 
-@app.route('/view_duplicate/<filename>')
-def view_duplicate(filename):
+@app.route('/view_duplicate/<filename>/<flag>')
+def view_duplicate(filename, flag):
     if 'username' not in session:
         return jsonify({'error': 'Not logged in'}), 401
         
     try:
-        # Get the file path from the duplicates folder
-        file_path = get_user_folder(session['username']) / 'duplicates' / filename
+        PROCESSED_FOLDER = Path("processed")                                                                        
+        flag = int(flag)
+        if flag == 1:
+            for file in os.listdir(get_user_folder(session['username']) / 'duplicates'):
+                if file.startswith(filename) and file.endswith('.pdf'):
+                    file_path = get_user_folder(session['username']) / 'duplicates' / file
+                    break
+        else:
+            for file in os.listdir(PROCESSED_FOLDER):
+                if file.startswith(filename) and file.endswith('.pdf'):
+                    file_path = PROCESSED_FOLDER / file
+                    break
         
         # Set the response headers for PDF display
         response = send_file(
@@ -1581,76 +1591,86 @@ def overwrite_duplicate():
         
     data = request.get_json()
     filename = data.get('filename')
+    unique_number = data.get('unique_number')
+    selected_unique_number = data.get('selected_unique_number')
+
     if not filename:
         return jsonify({'error': 'No filename provided'}), 400
-        
+
     try:
-        # Source paths in duplicates folder
-        source_pdf = get_user_folder(session['username']) / 'duplicates' / filename
-        source_json = get_user_folder(session['username']) / 'duplicates' / (filename.rsplit('.', 1)[0] + '.json')
-
-        PROCESSED_FOLDER = Path("processed")
-        PROCESSED_FOLDER.mkdir(exist_ok=True)
-
-        list_of_json_files = []
         for file in os.listdir(get_user_folder(session['username']) / 'duplicates'):
-            if file.endswith('.json'):
-                list_of_json_files.append(file)
+            if file.startswith(unique_number) and file.endswith('.json'):
+                json_path = get_user_folder(session['username']) / 'duplicates' / file
+                break
 
-        def get_matching_json(pdf_file, json_files):
-            unique_number = int(os.path.basename(pdf_file).split("_")[0].lstrip("0"))
-            for json_file in json_files:
-                json_number = int(os.path.basename(json_file).split("_")[0].lstrip("0"))
-                if json_number == unique_number:
-                    return json_file
-            return None
+        # Read the original JSON file
+        with open(json_path, 'r') as f:
+            json_data = json.load(f)
 
-        # Get the matching JSON file
-        matching_json = get_matching_json(source_pdf, list_of_json_files)
+        # Update the unique number in the uploaded file details
+        # json_data['unique_number'] = selected_unique_number
 
-        creator = GraphCreator()
-        creator.create_graph(str(get_user_folder(session['username']) / 'duplicates' / matching_json))
-        creator.close()
+        # Create new filename for modified JSON
+        new_json_filename = f"{selected_unique_number}_{filename.split('.')[0]}.json"
+        new_json_path = Path("output") / new_json_filename
 
-        # Remove the files from duplicates folder
-        if source_pdf.exists():
-            os.remove(source_pdf)
-        if source_json.exists():
-            os.remove(str(get_user_folder(session['username']) / 'duplicates' / matching_json))
-            
-        # Get updated list of duplicate files
-        duplicate_files = []
-        duplicates_folder = get_user_folder(session['username']) / 'duplicates'
-        for file in os.listdir(duplicates_folder):
-            if file.endswith('.pdf'):
-                duplicate_files.append(file)
-        
-        # Update the session with new list
-        session['duplicate_files'] = duplicate_files
+        # Save modified JSON to new file
+        with open(new_json_path, 'w') as f:
+            json.dump(json_data, f, indent=2)
+
+        # Update json_path to point to new file
+        #os.remove(json_path)
+        json_path = new_json_path
+
+        # creator = GraphCreator()
+        # creator.create_graph(str(json_path))
+        # creator.close()
+
+        for file1 in os.listdir(get_user_folder(session['username']) / 'duplicates'):
+            if file1.startswith(unique_number) and file1.endswith('.pdf'):
+                pdf_path = get_user_folder(session['username']) / 'duplicates' / file1
+                filename = file1
+                break
+
+        # Create new filename for PDF with selected unique number
+        new_filename = f"{selected_unique_number}_{filename.split('_', 1)[1]}"
+        filename = new_filename
+                
+        new_pdf_path = Path("processed") / filename
+        shutil.move(str(pdf_path), str(new_pdf_path))
 
         return jsonify({'success': True})
+
     except Exception as e:
-        return jsonify({'success': True})
+        logger.error(f"Error fetching duplicates: {str(e)}")
+        return jsonify({'error': str(e)}), 500
 
-@app.route('/get_duplicates/<filename>')
-def get_duplicates(filename):
+@app.route('/get_duplicates/<unique_number>')
+def get_duplicates(unique_number):
     if 'username' not in session:
         return jsonify({'error': 'Not logged in'}), 401
         
     try:
         # Connect to Neo4j and fetch duplicates
+        uri = "bolt://localhost:7687"
+        username = "neo4j"
+        password = "Sagar1601"
+        
         driver = GraphDatabase.driver(uri, auth=(username, password))
-        with driver.session() as session:
-            # Query to find potential duplicates based on name and DOB
-            result = session.run("""
+        with driver.session() as session1:  # Renamed to session1 to avoid conflict with Flask session
+            # Query to find potential duplicates
+            result = session1.run("""
                 MATCH (p:Person)
-                WHERE p.name = $name OR p.DOB = $dob
-                RETURN p.name as name, p.DOB as dob, p.current_position as role
-            """, name=filename_to_name(filename))
+                WHERE p.unique_number <> $unique_number  // Exclude the current file
+                RETURN p.name as name, p.unique_number as unique_number
+                LIMIT 10
+            """, unique_number=unique_number)
             
             duplicates = [dict(record) for record in result]
             return jsonify(duplicates)
+            
     except Exception as e:
+        logger.error(f"Error fetching duplicates: {str(e)}")
         return jsonify({'error': str(e)}), 500
 
 @app.route('/handle_duplicate_action', methods=['POST'])
@@ -1700,19 +1720,216 @@ def process_as_new():
         
     data = request.get_json()
     filename = data.get('filename')
+    unique_number = data.get('unique_number')
     
     try:
-        # Move file from duplicates to main upload folder
-        source = get_user_folder(session['username']) / 'duplicates' / filename
-        destination = get_user_folder(session['username']) / filename
         
-        shutil.move(str(source), str(destination))
-        
-        # Also move the JSON file if it exists
-        json_filename = filename.rsplit('.', 1)[0] + '.json'
-        json_source = get_user_folder(session['username']) / 'duplicates' / json_filename
-        if json_source.exists():
-            os.remove(json_source)
+        class GraphCreator:
+            def __init__(self):
+                # Neo4j connection settings
+                self.uri = "bolt://localhost:7687"
+                self.username = "neo4j"
+                self.password = "Sagar1601"
+                
+                try:
+                    self.driver = GraphDatabase.driver(self.uri, auth=(self.username, self.password))
+                    # Test the connection
+                    self.driver.verify_connectivity()
+                    logger.info("Successfully connected to Neo4j database")
+                except Exception as e:
+                    logger.error(f"Failed to connect to Neo4j: {e}")
+                    raise
+
+            def close(self):
+                if hasattr(self, 'driver'):
+                    self.driver.close()
+                    logger.info("Neo4j connection closed")
+
+            def create_graph(self, json_file_path):
+                logger.info(f"Processing file: {json_file_path}")
+                try:
+                    with open(json_file_path, 'r', encoding='utf-8') as file:
+                        data = json.load(file)
+                    
+                    with self.driver.session() as session3:
+                        # Helper function to ensure primitive types
+                        def get_safe_value(value):
+                            if isinstance(value, (str, int, float, bool)):
+                                return value
+                            elif isinstance(value, dict) and 'name' in value:
+                                return value['name']
+                            elif isinstance(value, dict):
+                                return str(value)
+                            elif value is None:
+                                return ''
+                            return str(value)
+
+                        # Create person node with extended properties
+                        session3.run("""
+                            MERGE (p:Person {
+                                name: $name,
+                                email: $email,
+                                unique_number: $unique_number,
+                                DOB: $dob,
+                                gender: $gender,
+                                marital_status: $marital_status,
+                                nationality: $nationality,
+                                current_position: $current_position,
+                                current_employer: $current_employer,
+                                number_of_years_of_experience: $number_of_years_of_experience
+                            })
+                        """, 
+                            name=get_safe_value(data.get('name')),
+                            email=get_safe_value(data.get('email')),
+                            unique_number=get_safe_value(data.get('unique_number')),
+                            dob=get_safe_value(data.get('DOB')),
+                            gender=get_safe_value(data.get('gender')),
+                            marital_status=get_safe_value(data.get('marital_status')),
+                            nationality=get_safe_value(data.get('nationality')),
+                            current_position=get_safe_value(data.get('current_position')),
+                            current_employer=get_safe_value(data.get('current_employer')),
+                            number_of_years_of_experience=get_safe_value(data.get('number_of_years_of_experience'))
+                        )
+                        logger.info(f"Created Person node for {data.get('name')}")
+
+                        # Create education nodes
+                        for edu in data.get('education', []):
+                            session3.run("""
+                                MATCH (p:Person {name: $name})
+                                MERGE (i:Institution {name: $institution})
+                                MERGE (p)-[:STUDIED_AT {
+                                    degree: $degree,
+                                    field: $field,
+                                    year: $year
+                                }]->(i)
+                            """,
+                                name=get_safe_value(data.get('name')),
+                                institution=get_safe_value(edu.get('institution')),
+                                degree=get_safe_value(edu.get('degree')),
+                                field=get_safe_value(edu.get('field')),
+                                year=get_safe_value(edu.get('year'))
+                            )
+
+                        # Create skills
+                        for skill in data.get('professional_skills', []):
+                            skill_name = get_safe_value(skill)
+                            session3.run("""
+                                MATCH (p:Person {name: $name})
+                                MERGE (s:Skill {name: $skill})
+                                MERGE (p)-[:HAS_SKILL]->(s)
+                            """, name=get_safe_value(data.get('name')), skill=skill_name)
+
+                        # Create certifications
+                        for cert in data.get('certifications', []):
+                            session.run("""
+                                MATCH (p:Person {name: $name})
+                                MERGE (c:Certification {
+                                    name: $cert_name,
+                                    year: $cert_year,
+                                    id: $cert_id
+                                })
+                                MERGE (p)-[:HAS_CERTIFICATION]->(c)
+                            """,
+                                name=get_safe_value(data.get('name')),
+                                cert_name=get_safe_value(cert.get('name')),
+                                cert_year=get_safe_value(cert.get('year')),
+                                cert_id=get_safe_value(cert.get('id'))
+                            )
+
+                        # Create languages
+                        for lang in data.get('languages', []):
+                            lang_name = get_safe_value(lang)
+                            session3.run("""
+                                MATCH (p:Person {name: $name})
+                                MERGE (l:Language {name: $lang})
+                                MERGE (p)-[:SPEAKS]->(l)
+                            """, name=get_safe_value(data.get('name')), lang=lang_name)
+
+                        # Create projects
+                        for project in data.get('projects', []):
+                            session3.run("""
+                                MATCH (p:Person {name: $name})
+                                MERGE (pr:Project {
+                                    name: $project_name
+                                })
+                                MERGE (p)-[:WORKED_ON]->(pr)
+                                SET pr.skills_used = $skills_used
+                            """,
+                                name=get_safe_value(data.get('name')),
+                                project_name=get_safe_value(project.get('name')),
+                                skills_used=get_safe_value(project.get('skills_used'))
+                            )
+
+                        # Create achievements
+                        for achievement in data.get('achievements', []):
+                            achievement_desc = get_safe_value(achievement)
+                            session3.run("""
+                                MATCH (p:Person {name: $name})
+                                MERGE (a:Achievement {description: $achievement})
+                                MERGE (p)-[:ACHIEVED]->(a)
+                            """, name=get_safe_value(data.get('name')), achievement=achievement_desc)
+
+                        # Create work experience
+                        for exp in data.get('experience', []):
+                            # First create the basic work experience relationship
+                            session3.run("""
+                                MATCH (p:Person {name: $name})
+                                MERGE (c:Company {name: $company})
+                                MERGE (p)-[:WORKED_AT {
+                                    designation: $designation,
+                                    years: $years
+                                }]->(c)
+                            """, 
+                                name=get_safe_value(data.get('name')),
+                                company=get_safe_value(exp.get('work_at')),
+                                designation=get_safe_value(exp.get('designation')),
+                                years=get_safe_value(exp.get('years')),
+                                unique_number=get_safe_value(data.get('unique_number'))
+                            )
+
+                            # Now process work_on field to create Technology nodes
+                            work_on = get_safe_value(exp.get('work_on'))
+                            if work_on:
+                                # Split the work_on string into individual technologies
+                                technologies = [tech.strip() for tech in work_on.split(',')]
+                                for tech in technologies:
+                                    if tech:  # Skip empty strings
+                                        session3.run("""
+                                            MATCH (p:Person {name: $name})
+                                            MATCH (p)-[w:WORKED_AT]->(c:Company {name: $company})
+                                            MERGE (t:Technology {name: $tech})
+                                            MERGE (p)-[:USED_TECHNOLOGY {during: $years}]->(t)
+                                        """,
+                                            name=get_safe_value(data.get('name')),
+                                            company=get_safe_value(exp.get('work_at')),
+                                            tech=tech,
+                                            years=get_safe_value(exp.get('years'))
+                                        )
+
+                except json.JSONDecodeError as e:
+                    logger.error(f"Invalid JSON in file {json_file_path}: {e}")
+                except KeyError as e:
+                    logger.error(f"Missing required field in JSON {json_file_path}: {e}")
+                except Exception as e:
+                    logger.error(f"Error processing file {json_file_path}: {e}")
+
+        if 'username' not in session:
+            return jsonify({'error': 'Not logged in'}), 401
+            
+        data = request.get_json()
+        filename = data.get('filename')
+        unique_number = data.get('unique_number')
+        if not filename:
+            return jsonify({'error': 'No filename provided'}), 400
+
+        for file in os.listdir(get_user_folder(session['username']) / 'duplicates'):
+            if file.startswith(unique_number) and file.endswith('.json'):
+                json_path = get_user_folder(session['username']) / 'duplicates' / file
+                break
+
+        creator = GraphCreator()
+        creator.create_graph(str(json_path))
+        creator.close()
             
         return jsonify({'success': True})
         
@@ -1726,15 +1943,22 @@ def delete_duplicate():
         return jsonify({'error': 'Not logged in'}), 401
         
     data = request.get_json()
-    filename = data.get('filename')
-    
+    #filename = data.get('filename')
+    unique_number = data.get('unique_number')
+
     try:
         # Delete both PDF and JSON files
         duplicate_folder = get_user_folder(session['username']) / 'duplicates'
-        pdf_path = duplicate_folder / filename
-        json_filename = filename.rsplit('.', 1)[0] + '.json'
-        json_path = duplicate_folder / json_filename
-        
+        for file in os.listdir(duplicate_folder):
+            if file.startswith(unique_number) and file.endswith('.pdf'):
+                pdf_path = duplicate_folder / file
+                break
+
+        for file in os.listdir(duplicate_folder):
+            if file.startswith(unique_number) and file.endswith('.json'):
+                json_path = duplicate_folder / file
+                break
+
         if pdf_path.exists():
             os.remove(pdf_path)
         if json_path.exists():
