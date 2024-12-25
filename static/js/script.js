@@ -464,15 +464,16 @@ function sendMessage() {
     });
 }
 
-function addMessageToChat(sender, message) {
+function addMessageToChat(sender, message, shouldScroll = true) {
     const chatContainer = document.getElementById('chat-container');
     const messageDiv = document.createElement('div');
     messageDiv.className = `message ${sender}-message`;
     messageDiv.textContent = message;
     chatContainer.appendChild(messageDiv);
     
-    // Scroll to bottom of chat
-    chatContainer.scrollTop = chatContainer.scrollHeight;
+    if (shouldScroll) {
+        chatContainer.scrollTop = chatContainer.scrollHeight;
+    }
 }
 
 // Add event listener for Enter key in chat input
@@ -620,3 +621,111 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 });
+
+// Add these functions to handle chat persistence
+function loadChatHistory() {
+    fetch('/get_chat_history')
+        .then(response => response.json())
+        .then(data => {
+            if (data.error) {
+                console.error('Error loading chat history:', data.error);
+                return;
+            }
+            
+            const chatContainer = document.getElementById('chat-container');
+            chatContainer.innerHTML = ''; // Clear existing messages
+            
+            data.history.forEach(msg => {
+                addMessageToChat(msg.sender, msg.message, false);
+            });
+            
+            // Scroll to bottom
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+        })
+        .catch(error => console.error('Error:', error));
+}
+
+function clearChat() {
+    fetch('/clear_chat', {
+        method: 'POST',
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.error) {
+            console.error('Error clearing chat:', data.error);
+            return;
+        }
+        const chatContainer = document.getElementById('chat-container');
+        chatContainer.innerHTML = '';
+    })
+    .catch(error => console.error('Error:', error));
+}
+
+// Add event listeners when DOM loads
+document.addEventListener('DOMContentLoaded', function() {
+    // Existing event listeners...
+
+    // Load chat history
+    loadChatHistory();
+    
+    // Add clear chat button handler
+    const clearChatBtn = document.getElementById('clear-chat');
+    if (clearChatBtn) {
+        clearChatBtn.addEventListener('click', clearChat);
+    }
+});
+
+// Add some CSS for the new chat elements
+const chatStyles = document.createElement('style');
+chatStyles.textContent = `
+    .chat-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 10px;
+    }
+
+    .clear-chat-btn {
+        background: #c10c0c;
+        color: white;
+        border: none;
+        padding: 8px 15px;
+        border-radius: 4px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        transition: background-color 0.3s;
+    }
+
+    .clear-chat-btn:hover {
+        background: #c10c0c;
+    }
+
+    .chat-input-container {
+        display: flex;
+        gap: 10px;
+        margin-top: 10px;
+    }
+
+    .chat-input-container input {
+        flex: 1;
+        padding: 8px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+    }
+
+    .chat-input-container button {
+        padding: 8px 15px;
+        background: #c10c0c;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+    }
+
+    .chat-input-container button:hover {
+        background: #c10c0c;
+    }
+`;
+document.head.appendChild(chatStyles);

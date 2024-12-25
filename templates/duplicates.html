@@ -381,6 +381,39 @@
         modal.dataset.unique_number = unique_number;
     }
 
+    function confirmAction() {
+        const modal = document.getElementById('actionModal');
+        const action = modal.dataset.action;
+        const filename = modal.dataset.filename;
+        const uniqueNumber = modal.dataset.unique_number;
+
+        fetch('/handle_duplicate_action', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                action: action,
+                filename: filename,
+                unique_number: uniqueNumber
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                location.reload(); // Refresh the page to show updated list
+            } else {
+                alert('Error: ' + (data.error || 'Unknown error'));
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Error processing action');
+        });
+
+        closeModal();
+    }
+
     function showOverwriteModal(filename, uniqueNumber) {
         const modal = document.getElementById('overwriteModal');
         const overwriteList = document.getElementById('overwriteList');

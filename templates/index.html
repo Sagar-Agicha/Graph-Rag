@@ -72,10 +72,17 @@
         </div>
 
         <div id="chat-interface">
-            <h2>Chat</h2>
+            <div class="chat-header">
+                <h2>Chat</h2>
+                <button id="clear-chat" class="clear-chat-btn">
+                    <i class="fas fa-trash"></i> Clear Chat
+                </button>
+            </div>
             <div id="chat-container"></div>
-            <input type="text" id="user-input" placeholder="Type your message..." style="width: 80%">
-            <button onclick="sendMessage()">Send</button>
+            <div class="chat-input-container">
+                <input type="text" id="user-input" placeholder="Type your message...">
+                <button onclick="sendMessage()">Send</button>
+            </div>
         </div>
     </main>
 
@@ -176,13 +183,6 @@
                     
                     // Update status display
                     const statusData = data.status_data || [];
-                    
-                    // Check for duplicate status and update counter
-                    statusData.forEach(status => {
-                        if (status.status === "duplicate" && status.duplicate_count !== undefined) {
-                            updateDuplicateCounter(status.duplicate_count);
-                        }
-                    });
                 })
                 .catch(error => console.error('Error:', error));
         }

@@ -16,11 +16,15 @@ from datetime import datetime, timedelta
 import shutil
 from neo4j import GraphDatabase
 import logging
+from typing import Dict, List, Any
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 app = Flask(__name__)
+
+CHAT_HISTORY_FOLDER = Path("chat_history")
+CHAT_HISTORY_FOLDER.mkdir(exist_ok=True)
 
 # Configure Neo4j connection
 uri = "bolt://localhost:7687"
@@ -37,10 +41,10 @@ DUPLICATES_FOLDER.mkdir(exist_ok=True)
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 UPLOAD_FOLDER.mkdir(exist_ok=True)
 
-pytesseract.pytesseract.tesseract_cmd = r"C:\Users\Sagar\AppData\Local\Programs\Tesseract-OCR\tesseract.exe"
+pytesseract.pytesseract.tesseract_cmd = r"C:\Program Files\Tesseract-OCR\tesseract.exe"
 
 if os.name == 'nt':  # Windows
-    POPPLER_PATH = r"C:\Users\Sagar\Downloads\poppler-24.07.0\Library\bin"
+    POPPLER_PATH = r"poppler-24.07.0\Library\bin"
     os.environ["PATH"] += os.pathsep + POPPLER_PATH
 
 STATUS_FOLDER = Path("status")
@@ -191,15 +195,212 @@ def get_uploaded_files():
             files.append(filename)
     return files
 
+@app.route('/get_chat_history')
+def get_chat_history():
+    if 'username' not in session:
+        return jsonify({'error': 'Not logged in'}), 401
+        
+    try:
+        chat_file = CHAT_HISTORY_FOLDER / f"{session['username']}_chat.json"
+        if chat_file.exists():
+            with open(chat_file, 'r') as f:
+                return jsonify({'history': json.load(f)})
+        return jsonify({'history': []})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
 @app.route('/chat', methods=['POST'])
 def chat():
     data = request.json
     user_message = data.get('message', '')
 
-        
+    class GraphSearcher:
+        def __init__(self):
+            # Neo4j connection
+            self.uri = "bolt://localhost:7687"
+            self.username = "neo4j"
+            self.password = "Sagar1601"
+            
+            # Sambanova settings
+            self.client = openai.OpenAI(
+                api_key="e4f88cdc-e437-4545-b92b-5aaed8866b27",
+                base_url="https://api.sambanova.ai/v1"
+            )
+
+            try:
+                self.driver = GraphDatabase.driver(self.uri, auth=(self.username, self.password))
+                self.driver.verify_connectivity()
+                logger.info("Connected to Neo4j successfully")
+                
+            except Exception as e:
+                logger.error(f"Connection error: {e}")
+                raise
+
+        def close(self):
+            self.driver.close()
+
+        def query_to_cypher(self, query: str) -> str:
+            """Convert natural language query to Cypher using Sambanova"""
+            try:
+                response = self.client.chat.completions.create(
+                    model='Qwen2.5-Coder-32B-Instruct',
+                    messages=[
+                        {"role": "system", "content": """
+                            You are an expert in Neo4j and Cypher query language. Your task is to convert natural language queries into precise Cypher statements using the given database schema.
+                            Return only the Cypher query with no additional responses.
+                            If asked for skills or certifications, return only `p.name AS Name`.
+                            If specifically asked for email, return only `p.email AS Email`.
+                            For numeric comparisons, ensure to convert string fields to integers using toInteger().
+                            Use `CONTAINS` or `STARTS WITH` for partial matches in skill names.
+                            For exact word matches within a sentence, use regular expressions to ensure the word is matched as a standalone word.
+
+                            ### Database Schema
+                            Nodes:
+                            - (:Person {name, email, DOB, gender, marital_status, nationality, current_position, current_employer, number_of_years_of_experience})
+                            - (:Language {name})
+                            - (:Skill {name})
+                            - (:Certification {name, year, id})
+                            - (:Company {name, domain})
+                            - (:Institution {name, domain})
+                            - (:Achievement {description})
+                            - (:Project {name, skills_used})
+                            - (:Experience {company, role, duration})
+                            - (:Technology {name})
+
+                            Relationships:
+                            - [:HAS_SKILL] between `Person` and `Skill`
+                            - [:SPEAKS] between `Person` and `Language`
+                            - [:HAS_CERTIFICATION] between `Person` and `Certification`
+                            - [:WORKED_AT] between `Person` and `Experience`
+                            - [:STUDIED_AT] between `Person` and `Institution`
+                            - [:ACHIEVED] between `Person` and `Achievement`
+                            - [:WORKED_ON] between `Person` and `Project`
+                            - [:USED_TECHNOLOGY] between `Person` and `Technology`
+
+                            ### Instructions:
+                            1. Use OPTIONAL MATCH to include partial matches.
+                            2. Combine results from multiple relationships when necessary.
+                            3. Ensure the query adheres to the schema.
+                            4. Return DISTINCT results to avoid duplicates.
+
+                            ### Examples:
+                            #### Example 1:
+                            **Natural Language Query**: Find all people skilled in Python with a certification in data science.
+                            **Cypher Query**:
+                            OPTIONAL MATCH (p:Person)-[:HAS_SKILL]->(s:Skill {name: "Python"})
+                            OPTIONAL MATCH (p)-[:HAS_CERTIFICATION]->(c:Certification {name: "Data Science"})
+                            RETURN DISTINCT p.name AS Name
+
+                            #### Example 2:
+                            **Natural Language Query**: Show me all people who who have more then 3 years of experience 
+                            **Cypher Query**:
+                            MATCH (p:Person)
+                            WHERE toInteger(p.number_of_years_of_experience) > 3
+                            RETURN p.name as Name   
+                        
+                            #### Example 3:
+                            **Natural Language Query**: Show me all the people who are skilled in Nutanix.
+                            **Cypher Query**:
+                            MATCH (p:Person)-[:HAS_SKILL]->(s:Skill)
+                            WHERE toLower(s.name) CONTAINS toLower('nutanix')
+                            RETURN DISTINCT p.name AS Name
+
+                            Return only cypher query no addiational responses.
+                            Validate the response again, only cypher query nothing else.
+                            """},
+                        {"role": "user", "content": query}
+                    ],
+                    temperature=0.0,
+                    top_p=0.1
+                )
+                return response.choices[0].message.content.strip()
+            except Exception as e:
+                logger.error(f"Error in query conversion: {e}")
+                return None
+
+        def format_results(self, results: List[Dict[str, Any]]) -> str:
+            """Format results into a natural language response using Sambanova"""
+            if not results:
+                return "No results found."
+                
+            try:
+                response = self.client.chat.completions.create(
+                    model='Meta-Llama-3.1-8B-Instruct',
+                    messages=[
+                        {"role": "system", "content": "Convert database results into natural language response. Be concise and clear."},
+                        {"role": "user", "content": f"Convert these results to natural language just names nothing else and if any fields are empty delete it from the response and give each name in a new line: {json.dumps(results)}"}
+                    ],
+                    temperature=0.0,
+                    top_p=0.0
+                )
+                return response.choices[0].message.content.strip()
+            except Exception as e:
+                logger.error(f"Error in result formatting: {e}")
+                return str(results)  # Fallback to raw results
+
+
+        def search(self, user_query: str) -> str:
+            try:
+                # Convert natural language to Cypher
+                cypher_query = self.query_to_cypher(user_query)
+                cypher_query = cypher_query.replace("\n", " ")
+                print("cypher_query = ", cypher_query)
+                if not cypher_query:
+                    return "Sorry, I couldn't understand the query."
+
+                # Add debug query to list all certifications
+                with self.driver.session() as session:
+                    results = list(session.run(cypher_query))
+                    results_list = [record.data() for record in results]
+
+                print("results_list = ", results_list)
+
+                return self.format_results(results_list)
+
+            except Exception as e:
+                logger.error(f"Search error: {e}")
+                return f"An error occurred: {str(e)}"
+
+    searcher = GraphSearcher()
     
-    response = f"Received: {user_message}"
+    try:
+        result = searcher.search(user_message)
+        print("\nResult:", result)
+            
+    except KeyboardInterrupt:
+        print("\nExiting...")
+    finally:
+        searcher.close()
+    
+    response = result
+    # Save chat history
+    chat_file = CHAT_HISTORY_FOLDER / f"{session['username']}_chat.json"
+    history = []
+    if chat_file.exists():
+        with open(chat_file, 'r') as f:
+            history = json.load(f)
+    
+    # Add new messages
+    history.append({'sender': 'user', 'message': user_message})
+    history.append({'sender': 'bot', 'message': response})
+    
+    with open(chat_file, 'w') as f:
+        json.dump(history, f)
+
     return jsonify({'response': response})
+
+@app.route('/clear_chat', methods=['POST'])
+def clear_chat():
+    if 'username' not in session:
+        return jsonify({'error': 'Not logged in'}), 401
+        
+    try:
+        chat_file = CHAT_HISTORY_FOLDER / f"{session['username']}_chat.json"
+        if chat_file.exists():
+            chat_file.unlink()  # Delete the file
+        return jsonify({'message': 'Chat history cleared'})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
 
 def get_user_status_file(username):
     """Get the path to user's status file"""
@@ -929,7 +1130,7 @@ def process_files():
                                         if json_file.name.startswith(str(unique_number).zfill(7)):
                                             return json_file
 
-                                def find_person_by_name_and_dob(name, dob):
+                                def find_person_by_name_and_dob(name, dob, structured_output, unique_number):
                                     """
                                     Find all potential duplicates using Levenshtein distance and DOB
                                     Returns status and duplicate status JSON
@@ -955,13 +1156,33 @@ def process_files():
                                                 records = list(result)
                                                 if not records:
                                                     return "False", None
-                                                    # Create duplicate status structure
-                                                duplicate_status = {
+                                            
+                                                if dob == records[0]['dob']:
+                                                    return "False", None
+
+                                                # Load existing duplicate status or create new list
+                                                status_path = STATUS_FOLDER / f"{session['username']}_duplicate_status.json"
+                                                if status_path.exists():
+                                                    with open(status_path, 'r') as f:
+                                                        try:
+                                                            duplicate_status = json.load(f)
+                                                            # Convert to list if it's a dict
+                                                            if isinstance(duplicate_status, dict):
+                                                                duplicate_status = [duplicate_status]
+                                                            elif not isinstance(duplicate_status, list):
+                                                                duplicate_status = []
+                                                        except json.JSONDecodeError:
+                                                            duplicate_status = []
+                                                else:
+                                                    duplicate_status = []
+
+                                                # Create new duplicate entry
+                                                new_duplicate_entry = {
                                                     "uploaded_file": {
-                                                        "name": name,
-                                                        "dob": dob,
-                                                        "current_position": "Not specified",  # Will be filled from structured_output
-                                                        "unique_number": None  # Will be filled from structured_output
+                                                        "name": structured_output.get("name", "Not specified"),
+                                                        "dob": structured_output.get("DOB", "Not specified"),
+                                                        "current_position": structured_output.get("current_position", "Not specified"),
+                                                        "unique_number": structured_output.get("unique_number") if structured_output.get("unique_number") else unique_number
                                                     },
                                                     "duplicates": [],
                                                     "timestamp": datetime.now().isoformat(),
@@ -973,7 +1194,7 @@ def process_files():
                                                     pdf_path = find_pdf_by_unique_number(record['unique_number'])
                                                     json_path = find_json_by_unique_number(record['unique_number'])
                                                     
-                                                    duplicate_entry = {
+                                                    duplicate = {
                                                         "name": record['matched_name'],
                                                         "unique_number": record['unique_number'],
                                                         "similarity": round(record['similarity'] * 100, 2),
@@ -985,35 +1206,37 @@ def process_files():
                                                             "json_path": str(json_path) if json_path else None
                                                         }
                                                     }
-                                                    duplicate_status["duplicates"].append(duplicate_entry)
-                                                    # Save duplicate status JSON
-                                                    if 'username' in session:  # Use flask.session instead of session
-                                                        status_path = STATUS_FOLDER / f"{session['username']}_duplicate_status.json"
-                                                        with open(status_path, 'w') as f:
-                                                            json.dump(duplicate_status, f, indent=2)
+                                                    new_duplicate_entry["duplicates"].append(duplicate)
+
+                                                # Append new duplicate entry to existing list
+                                                duplicate_status.append(new_duplicate_entry)
                                                 
-                                                return "True", duplicate_status
+                                                # Save updated duplicate status JSON
+                                                if 'username' in session:
+                                                    with open(status_path, 'w') as f:
+                                                        json.dump(duplicate_status, f, indent=2)
+                                                
+                                                return "True", new_duplicate_entry
                                                 
                                     except Exception as e:
                                         logger.error(f"Error in duplicate check: {str(e)}")
                                         return "Error", str(e)
-                                    # Update the section where duplicates are handled
 
-                                status, duplicate_status = find_person_by_name_and_dob(structured_output["name"], structured_output.get("DOB"))
+                                status, new_duplicate_entry = find_person_by_name_and_dob(structured_output["name"], structured_output.get("DOB"), structured_output, unq_num)
                                 if status == "True":
-                                    print(f"Found {len(duplicate_status['duplicates'])} potential duplicates:")
+                                    print(f"Found {len(new_duplicate_entry['duplicates'])} potential duplicates:")
                                 
                                     # Update the uploaded file details
-                                    duplicate_status["uploaded_file"].update({
+                                    new_duplicate_entry["uploaded_file"].update({
                                         "path": str(get_user_folder(session['username']) / filename),
                                         "current_position": structured_output.get("current_position", "Not specified"),
                                         "unique_number": structured_output.get("unique_number")
                                     })
-                                    
-                                    # Save updated status
-                                    status_path = STATUS_FOLDER / f"{session['username']}_duplicate_status.json"
-                                    with open(status_path, 'w') as f:
-                                        json.dump(duplicate_status, f, indent=2)
+
+                                    # # Save updated status
+                                    # status_path = STATUS_FOLDER / f"{session['username']}_duplicate_status.json"
+                                    # with open(status_path, 'w') as f:
+                                    #     json.dump(new_duplicate_entry, f, indent=2)
                                     
                                     # Create duplicates folder and move file
                                     user_duplicates = get_user_folder(session['username']) / 'duplicates'
@@ -1131,6 +1354,7 @@ def process_files():
                         continue
 
             remove_from_queue(session['username'])
+            process_next_in_queue()
 
             return jsonify({'message': 'All documents processed successfully'})
         else:
@@ -1141,9 +1365,33 @@ def process_files():
             })
 
     except Exception as e:
-        # Update status to "failed"
         print(f"Error in processing: {str(e)}")
         return jsonify({'error': str(e)}), 500
+
+def process_next_in_queue():
+    """Process the next user's files in the queue"""
+    try:
+        queue_file = Path("queue.txt")
+        if not queue_file.exists():
+            return
+            
+        with open(queue_file, 'r') as f:
+            lines = f.readlines()
+            
+        if not lines:
+            return
+            
+        # Get next user in queue
+        next_user = lines[0].strip().split(',')[0]
+        
+        # Trigger processing for next user
+        with app.test_client() as client:
+            with client.session_transaction() as sess:
+                sess['username'] = next_user
+            client.post('/process')
+            
+    except Exception as e:
+        logger.error(f"Error processing next in queue: {str(e)}")
 
 @app.route('/processing-status', methods=['GET'])
 def get_processing_status():
@@ -1340,18 +1588,26 @@ def duplicates():
     
     # Get list of duplicate files
     files = []
-    for file in duplicates_folder.glob('*.pdf'):
-        # Get corresponding status file
-        status_file = STATUS_FOLDER / f"{session['username']}_duplicate_status.json"
-        if status_file.exists():
+    i = 0
+    # Get corresponding status file
+    status_file = STATUS_FOLDER / f"{session['username']}_duplicate_status.json"
+    if status_file.exists():
+        try:
             with open(status_file, 'r') as f:
                 status_data = json.load(f)
-                files.append({
-                    'name': file.name,
-                    'uploaded_file': status_data.get('uploaded_file', {}),
-                    'duplicates': status_data.get('duplicates', [])
-                })
-    
+        except Exception as e:
+            print(f"Error loading status file: {str(e)}")
+            status_data = []
+
+    for file in duplicates_folder.glob('*.pdf'):
+        try:
+            unique_number = status_data[i].get('uploaded_file', {}).get('unique_number')
+        except:
+            continue
+        if file.name.startswith(str(unique_number)):
+            files.append({'name': file.name, 'uploaded_file': status_data[i].get('uploaded_file', {}), 'duplicates': status_data[i].get('duplicates', [])})
+            i += 1
+
     return render_template('duplicates.html', 
                          username=session['username'],
                          files=files)
@@ -1608,7 +1864,7 @@ def overwrite_duplicate():
             json_data = json.load(f)
 
         # Update the unique number in the uploaded file details
-        # json_data['unique_number'] = selected_unique_number
+        json_data['unique_number'] = selected_unique_number
 
         # Create new filename for modified JSON
         new_json_filename = f"{selected_unique_number}_{filename.split('.')[0]}.json"
@@ -1619,12 +1875,12 @@ def overwrite_duplicate():
             json.dump(json_data, f, indent=2)
 
         # Update json_path to point to new file
-        #os.remove(json_path)
+        os.remove(json_path)
         json_path = new_json_path
 
-        # creator = GraphCreator()
-        # creator.create_graph(str(json_path))
-        # creator.close()
+        creator = GraphCreator()
+        creator.create_graph(str(json_path))
+        creator.close()
 
         for file1 in os.listdir(get_user_folder(session['username']) / 'duplicates'):
             if file1.startswith(unique_number) and file1.endswith('.pdf'):
@@ -1638,6 +1894,19 @@ def overwrite_duplicate():
                 
         new_pdf_path = Path("processed") / filename
         shutil.move(str(pdf_path), str(new_pdf_path))
+
+        status_file = STATUS_FOLDER / f"{session['username']}_duplicate_status.json"
+        if status_file.exists():
+            with open(status_file, 'r') as f:
+                status_data = json.load(f)
+            
+            # Remove the entry for the overwritten file
+            status_data = [entry for entry in status_data 
+                         if str(entry.get('uploaded_file', {}).get('unique_number')) != str(unique_number)]
+            
+            # Write updated status back to file
+            with open(status_file, 'w') as f:
+                json.dump(status_data, f, indent=2)
 
         return jsonify({'success': True})
 
@@ -1673,29 +1942,11 @@ def get_duplicates(unique_number):
         logger.error(f"Error fetching duplicates: {str(e)}")
         return jsonify({'error': str(e)}), 500
 
-@app.route('/handle_duplicate_action', methods=['POST'])
-def handle_duplicate_action():
-    data = request.get_json()
-    action = data.get('action')
-    selected_id = data.get('selected_id')
-    filename = data.get('filename')
-    
-    if action == 'doNotUpload':
-        # Delete the file
-        return delete_duplicate(filename)
-    elif action == 'overwrite':
-        # Overwrite the selected entry
-        return overwrite_duplicate(filename, selected_id)
-    elif action == 'differentPerson':
-        # Process as new person
-        return process_as_new_person(filename)
-
 def filename_to_name(filename):
     """Extract name from filename by removing unique number prefix and extension"""
     # Remove unique number prefix (7 digits + underscore) and .pdf extension
     return filename[8:].rsplit('.', 1)[0].replace('_', ' ')
 
-def process_as_new_person(filename):
     """Process file as a new person, ignoring potential duplicates"""
     if 'username' not in session:
         return jsonify({'error': 'Not logged in'}), 401
@@ -1708,6 +1959,19 @@ def process_as_new_person(filename):
         
         # Add to processing queue
         add_to_queue(session['username'])
+
+        status_file = STATUS_FOLDER / f"{session['username']}_duplicate_status.json"
+        if status_file.exists():
+            with open(status_file, 'r') as f:
+                status_data = json.load(f)
+            
+            # Remove the entry for the processed file
+            status_data = [entry for entry in status_data 
+                         if str(entry.get('uploaded_file', {}).get('unique_number')) != str(unique_number)]
+            
+            # Write updated status back to file
+            with open(status_file, 'w') as f:
+                json.dump(status_data, f, indent=2)
         
         return jsonify({'success': True})
     except Exception as e:
@@ -1930,6 +2194,19 @@ def process_as_new():
         creator = GraphCreator()
         creator.create_graph(str(json_path))
         creator.close()
+
+        status_file = STATUS_FOLDER / f"{session['username']}_duplicate_status.json"
+        if status_file.exists():
+            with open(status_file, 'r') as f:
+                status_data = json.load(f)
+            
+            # Remove the entry for the processed file
+            status_data = [entry for entry in status_data 
+                         if str(entry.get('uploaded_file', {}).get('unique_number')) != str(unique_number)]
+            
+            # Write updated status back to file
+            with open(status_file, 'w') as f:
+                json.dump(status_data, f, indent=2)
             
         return jsonify({'success': True})
         
@@ -1937,32 +2214,45 @@ def process_as_new():
         logger.error(f"Error processing as new: {str(e)}")
         return jsonify({'error': str(e)}), 500
 
-@app.route('/delete_duplicate', methods=['POST'])
-def delete_duplicate():
+@app.route('/handle_duplicate_action', methods=['POST'])
+def handle_duplicate_action():
     if 'username' not in session:
         return jsonify({'error': 'Not logged in'}), 401
         
     data = request.get_json()
-    #filename = data.get('filename')
     unique_number = data.get('unique_number')
 
     try:
-        # Delete both PDF and JSON files
+        # Delete files
         duplicate_folder = get_user_folder(session['username']) / 'duplicates'
+        pdf_path = None
+        json_path = None
+        
         for file in os.listdir(duplicate_folder):
             if file.startswith(unique_number) and file.endswith('.pdf'):
                 pdf_path = duplicate_folder / file
-                break
-
-        for file in os.listdir(duplicate_folder):
-            if file.startswith(unique_number) and file.endswith('.json'):
+            elif file.startswith(unique_number) and file.endswith('.json'):
                 json_path = duplicate_folder / file
-                break
 
-        if pdf_path.exists():
+        # Remove files if they exist
+        if pdf_path and pdf_path.exists():
             os.remove(pdf_path)
-        if json_path.exists():
+        if json_path and json_path.exists():
             os.remove(json_path)
+
+        # Update duplicate status file
+        status_file = STATUS_FOLDER / f"{session['username']}_duplicate_status.json"
+        if status_file.exists():
+            with open(status_file, 'r') as f:
+                status_data = json.load(f)
+            
+            # Remove the entry with matching unique_number
+            status_data = [entry for entry in status_data 
+                         if str(entry.get('uploaded_file', {}).get('unique_number')) != str(unique_number)]
+            
+            # Write updated status back to file
+            with open(status_file, 'w') as f:
+                json.dump(status_data, f, indent=2)
             
         return jsonify({'success': True})
         
@@ -1972,4 +2262,4 @@ def delete_duplicate():
 
 if __name__ == '__main__':
     init_app()
-    app.run(debug=True, port=6001, host='0.0.0.0')
+    app.run(debug=True, port=6001, host='0.0.0.0', use_reloader=False)
