@@ -41,7 +41,7 @@ DUPLICATES_FOLDER.mkdir(exist_ok=True)
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 UPLOAD_FOLDER.mkdir(exist_ok=True)
 
-pytesseract.pytesseract.tesseract_cmd = r"C:\Program Files\Tesseract-OCR\tesseract.exe"
+pytesseract.pytesseract.tesseract_cmd = r"C:\Users\Sagar\AppData\Local\Programs\Tesseract-OCR\tesseract.exe"
 
 if os.name == 'nt':  # Windows
     POPPLER_PATH = r"poppler-24.07.0\Library\bin"
