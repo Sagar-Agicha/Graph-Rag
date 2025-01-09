@@ -103,48 +103,39 @@
     <script type="module" src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.esm.js"></script>
     <script nomodule src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.js"></script>
     <div class="page-transition">
-        <div class="transition-line horizontal" style="top: 0"></div>
-        <div class="transition-line horizontal" style="bottom: 0"></div>
-        <div class="transition-line vertical" style="left: 0"></div>
-        <div class="transition-line vertical" style="right: 0"></div>
-        <div class="glitch-text">Loading...</div>
+        <div class="loading-text"></div>
     </div>
 
     <script>
         // Add this to handle page loads and navigation
         document.addEventListener('DOMContentLoaded', () => {
             const transition = document.querySelector('.page-transition');
-            const lines = document.querySelectorAll('.transition-line');
             
             // Only show entry animation if we're not coming from another page
             if (!document.referrer.includes(window.location.host)) {
                 transition.classList.add('active');
-                lines.forEach(line => line.classList.add('active'));
                 
                 setTimeout(() => {
                     transition.classList.remove('active');
-                    lines.forEach(line => line.classList.remove('active'));
-                }, 1000);
+                }, 500);
             }
         });
 
-        // Add this to handle navigation links
+        // Update navigation link handling
         document.querySelectorAll('a').forEach(link => {
             link.addEventListener('click', (e) => {
                 if (!link.hasAttribute('target')) {  // Don't animate if opening in new tab
                     e.preventDefault();
                     const transition = document.querySelector('.page-transition');
-                    const lines = document.querySelectorAll('.transition-line');
                     
                     transition.classList.add('active');
-                    lines.forEach(line => line.classList.add('active'));
                     
                     setTimeout(() => {
                         window.location.href = link.href;
-                    }, 1000);
+                    }, 500);
                 }
             });
-        }); 
+        });
 
         // Add this to your existing JavaScript
         function updateDuplicateCounter(count) {

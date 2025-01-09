@@ -4,12 +4,11 @@
     left: 0;
     width: 100%;
     height: 100%;
-    background: #1a1a1a;
+    background-color: #1a1a1a;
     z-index: 9999;
-    pointer-events: none;
     opacity: 0;
     visibility: hidden;
-    transition: opacity 0.5s;
+    transition: opacity 0.5s ease;
 }
 
 .page-transition.active {
@@ -17,63 +16,21 @@
     visibility: visible;
 }
 
-.transition-line {
-    position: absolute;
-    background: #ff2233;
-    transform: scaleX(0);
-}
-
-.transition-line.horizontal {
-    height: 2px;
-    width: 100%;
-    transform-origin: left;
-}
-
-.transition-line.vertical {
-    width: 2px;
-    height: 100%;
-    transform-origin: top;
-}
-
-.transition-line.active {
-    animation: lineSwipe 0.5s ease-in-out forwards;
-}
-
-@keyframes lineSwipe {
-    0% {
-        transform: scaleX(0);
-    }
-    100% {
-        transform: scaleX(1);
-    }
-}
-
-.glitch-text {
+.loading-spinner {
     position: absolute;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    color: #ff2233;
-    font-family: 'Orbitron', sans-serif;
-    font-size: 2em;
-    text-transform: uppercase;
-    animation: glitch 0.5s infinite;
+    width: 40px;
+    height: 40px;
+    border: 3px solid #ffffff;
+    border-radius: 50%;
+    border-top-color: transparent;
+    animation: spin 1s linear infinite;
 }
 
-@keyframes glitch {
-    0% {
-        text-shadow: 2px 2px #00ff00, -2px -2px #ff00ff;
-    }
-    25% {
-        text-shadow: -2px 2px #00ff00, 2px -2px #ff00ff;
-    }
-    50% {
-        text-shadow: 2px -2px #00ff00, -2px 2px #ff00ff;
-    }
-    75% {
-        text-shadow: -2px -2px #00ff00, 2px 2px #ff00ff;
-    }
-    100% {
-        text-shadow: 2px 2px #00ff00, -2px -2px #ff00ff;
+@keyframes spin {
+    to {
+        transform: translate(-50%, -50%) rotate(360deg);
     }
 } 

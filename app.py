@@ -66,7 +66,10 @@ def count_user_duplicates(username):
         duplicate_folder = get_user_folder(username) / 'duplicates'
         if not duplicate_folder.exists():
             return 0
-        return len([f for f in duplicate_folder.glob('*.pdf')])
+        unique_files = set()
+        for f in duplicate_folder.glob('*.pdf'):
+            unique_files.add(f.name)
+        return len(unique_files)
     except Exception as e:
         print(f"Error counting duplicates: {str(e)}")
         return 0
@@ -1158,66 +1161,65 @@ def process_files():
                                                     return "False", None
                                             
                                                 if dob == records[0]['dob']:
-                                                    return "False", None
-
-                                                # Load existing duplicate status or create new list
-                                                status_path = STATUS_FOLDER / f"{session['username']}_duplicate_status.json"
-                                                if status_path.exists():
-                                                    with open(status_path, 'r') as f:
-                                                        try:
-                                                            duplicate_status = json.load(f)
-                                                            # Convert to list if it's a dict
-                                                            if isinstance(duplicate_status, dict):
-                                                                duplicate_status = [duplicate_status]
-                                                            elif not isinstance(duplicate_status, list):
+                                                    status_path = STATUS_FOLDER / f"{session['username']}_duplicate_status.json"
+                                                    if status_path.exists():
+                                                        with open(status_path, 'r') as f:
+                                                            try:
+                                                                duplicate_status = json.load(f)
+                                                                # Convert to list if it's a dict
+                                                                if isinstance(duplicate_status, dict):
+                                                                    duplicate_status = [duplicate_status]
+                                                                elif not isinstance(duplicate_status, list):
+                                                                    duplicate_status = []
+                                                            except json.JSONDecodeError:
                                                                 duplicate_status = []
-                                                        except json.JSONDecodeError:
-                                                            duplicate_status = []
-                                                else:
-                                                    duplicate_status = []
+                                                    else:
+                                                        duplicate_status = []
 
-                                                # Create new duplicate entry
-                                                new_duplicate_entry = {
-                                                    "uploaded_file": {
-                                                        "name": structured_output.get("name", "Not specified"),
-                                                        "dob": structured_output.get("DOB", "Not specified"),
-                                                        "current_position": structured_output.get("current_position", "Not specified"),
-                                                        "unique_number": structured_output.get("unique_number") if structured_output.get("unique_number") else unique_number
-                                                    },
-                                                    "duplicates": [],
-                                                    "timestamp": datetime.now().isoformat(),
-                                                    "status": "pending_review"
-                                                }
-                                                
-                                                for record in records:
-                                                    # Find corresponding files
-                                                    pdf_path = find_pdf_by_unique_number(record['unique_number'])
-                                                    json_path = find_json_by_unique_number(record['unique_number'])
-                                                    
-                                                    duplicate = {
-                                                        "name": record['matched_name'],
-                                                        "unique_number": record['unique_number'],
-                                                        "similarity": round(record['similarity'] * 100, 2),
-                                                        "details": {
-                                                            "dob": record['dob'] if record['dob'] else "Not specified",
-                                                            "current_position": record['current_position'] if record['current_position'] else "Not specified",
-                                                            "current_employer": record['current_employer'] if record['current_employer'] else "Not specified",
-                                                            "pdf_path": str(pdf_path) if pdf_path else None,
-                                                            "json_path": str(json_path) if json_path else None
-                                                        }
+                                                    # Create new duplicate entry
+                                                    new_duplicate_entry = {
+                                                        "uploaded_file": {
+                                                            "name": structured_output.get("name", "Not specified"),
+                                                            "dob": structured_output.get("DOB", "Not specified"),
+                                                            "current_position": structured_output.get("current_position", "Not specified"),
+                                                            "unique_number": structured_output.get("unique_number") if structured_output.get("unique_number") else unique_number
+                                                        },
+                                                        "duplicates": [],
+                                                        "timestamp": datetime.now().isoformat(),
+                                                        "status": "pending_review"
                                                     }
-                                                    new_duplicate_entry["duplicates"].append(duplicate)
+                                                    
+                                                    for record in records:
+                                                        # Find corresponding files
+                                                        pdf_path = find_pdf_by_unique_number(record['unique_number'])
+                                                        json_path = find_json_by_unique_number(record['unique_number'])
+                                                        
+                                                        duplicate = {
+                                                            "name": record['matched_name'],
+                                                            "unique_number": record['unique_number'],
+                                                            "similarity": round(record['similarity'] * 100, 2),
+                                                            "details": {
+                                                                "dob": record['dob'] if record['dob'] else "Not specified",
+                                                                "current_position": record['current_position'] if record['current_position'] else "Not specified",
+                                                                "current_employer": record['current_employer'] if record['current_employer'] else "Not specified",
+                                                                "pdf_path": str(pdf_path) if pdf_path else None,
+                                                                "json_path": str(json_path) if json_path else None
+                                                            }
+                                                        }
+                                                        new_duplicate_entry["duplicates"].append(duplicate)
 
-                                                # Append new duplicate entry to existing list
-                                                duplicate_status.append(new_duplicate_entry)
-                                                
-                                                # Save updated duplicate status JSON
-                                                if 'username' in session:
-                                                    with open(status_path, 'w') as f:
-                                                        json.dump(duplicate_status, f, indent=2)
-                                                
-                                                return "True", new_duplicate_entry
-                                                
+                                                    # Append new duplicate entry to existing list
+                                                    duplicate_status.append(new_duplicate_entry)
+                                                    
+                                                    # Save updated duplicate status JSON
+                                                    if 'username' in session:
+                                                        with open(status_path, 'w') as f:
+                                                            json.dump(duplicate_status, f, indent=2)
+                                                    
+                                                    return "True", new_duplicate_entry
+
+                                                else: 
+                                                    return "False", None
                                     except Exception as e:
                                         logger.error(f"Error in duplicate check: {str(e)}")
                                         return "Error", str(e)
@@ -1395,7 +1397,7 @@ def process_next_in_queue():
 
 @app.route('/processing-status', methods=['GET'])
 def get_processing_status():
-
+    """Get the current processing status for files"""
     if 'username' not in session:
         return jsonify({'error': 'Not logged in'}), 401
         
@@ -1406,13 +1408,20 @@ def get_processing_status():
         if status_file.exists():
             with open(status_file, 'r') as f:
                 status_data = json.load(f)
+                
+            # Sort status data by last_updated in descending order
+            status_data.sort(key=lambda x: x.get('last_updated', ''), reverse=True)
+            
             return jsonify({
                 'status_data': status_data,
-                'duplicate_count': duplicate_count
+                'duplicate_count': duplicate_count,
+                'timestamp': datetime.now().isoformat()  # Add timestamp for frontend
             })
+            
         return jsonify({
             'status_data': [],
-            'duplicate_count': duplicate_count
+            'duplicate_count': duplicate_count,
+            'timestamp': datetime.now().isoformat()
         })
     except Exception as e:
         return jsonify({'error': str(e)}), 500

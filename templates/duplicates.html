@@ -243,7 +243,7 @@
                     <td class="action-buttons">
                         <button class="btn-do-not-upload" onclick="showModal('Do not Upload', '{{ file.uploaded_file.name }}', '{{ file.uploaded_file.unique_number }}')">Do not Upload</button>
                         <button class="btn-overwrite" onclick="showOverwriteModal('{{ file.uploaded_file.name }}', '{{ file.uploaded_file.unique_number }}')">Overwrite</button>
-                        <button class="btn-different-person" onclick="showModal('Different Person', '{{ file.uploaded_file.name }}', '{{ file.uploaded_file.unique_number }}')">Different Person</button>
+                        <button class="btn-different-person" onclick="handleDifferentPerson('{{ file.uploaded_file.name }}', '{{ file.uploaded_file.unique_number }}')">Different Person</button>
                     </td>
                 </tr>
                 <tr>
@@ -317,7 +317,7 @@
     <div class="transition-line horizontal" style="bottom: 0"></div>
     <div class="transition-line vertical" style="left: 0"></div>
     <div class="transition-line vertical" style="right: 0"></div>
-    <div class="glitch-text">Loading...</div>
+    <div class="glitch-text"></div>
 </div>
 
 <script>
@@ -528,6 +528,31 @@
         if (event.target === actionModal || event.target === overwriteModal) {
             closeModal();
         }
+    }
+
+    function handleDifferentPerson(filename, uniqueNumber) {
+        fetch('/process_as_new', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                filename: filename,
+                unique_number: uniqueNumber
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                location.reload(); // Refresh the page to show updated list
+            } else {
+                alert('Error: ' + (data.error || 'Unknown error'));
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Error processing different person action');
+        });
     }
 </script>
 
