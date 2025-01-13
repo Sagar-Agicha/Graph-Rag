@@ -2241,6 +2241,36 @@ def handle_duplicate_action():
         logger.error(f"Error deleting duplicate: {str(e)}")
         return jsonify({'error': str(e)}), 500
 
+# Add this new route to your Flask app
+@app.route('/view_pdf/<filename>/<status>')
+def view_pdf(filename, status):
+    if 'username' not in session:
+        return jsonify({'error': 'Not logged in'}), 401
+        
+    try:
+        user_folder = get_user_folder(session['username'])
+        
+        # Determine the correct folder based on status
+        if status == 'processed':
+            file_path = user_folder / 'processed' / filename
+        elif status == 'duplicate':
+            file_path = user_folder / 'duplicates' / filename
+        else:
+            file_path = user_folder / filename
+            
+        if not file_path.exists():
+            return "PDF not found", 404
+            
+        return send_file(
+            file_path,
+            mimetype='application/pdf',
+            as_attachment=False
+        )
+        
+    except Exception as e:
+        logger.error(f"Error viewing PDF: {str(e)}")
+        return str(e), 500
+
 if __name__ == '__main__':
     init_app()
     app.run(debug=True, port=6001, host='0.0.0.0', use_reloader=False)

@@ -200,11 +200,25 @@
                             </tr>
                         </thead>
                         <tbody id="statusTableBody">
-                            <!-- Status data will be inserted here -->
+                            <!-- Content will be dynamically populated -->
                         </tbody>
                     </table>
                 </div>
             </div>
+        </div>
+    </div>
+
+    <!-- Add this PDF Modal after your Status Modal -->
+    <div id="pdfModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="pdfTitle">Viewing PDF</h2>
+                <span class="close-modal" onclick="closePdfModal()">&times;</span>
+            </div>
+            <div class="pdf-controls">
+                <button onclick="closePdfModal()" class="close-btn">Close</button>
+            </div>
+            <iframe id="pdfViewer" style="width: 100%; height: calc(100vh - 200px); border: none;"></iframe>
         </div>
     </div>
 </body>

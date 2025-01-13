@@ -530,7 +530,20 @@ function showDuplicateNotification(count) {
 function showStatusModal() {
     const modal = document.getElementById('statusModal');
     modal.style.display = 'block';
-    updateStatusTable();
+    
+    // Start periodic updates
+    startStatusUpdates();
+    
+    // Add loading indicator
+    const tableBody = document.getElementById('statusTableBody');
+    tableBody.innerHTML = `
+        <tr>
+            <td colspan="4" class="loading-state">
+                <div class="loading-spinner"></div>
+                <span>Updating status...</span>
+            </td>
+        </tr>
+    `;
 }
 
 function closeStatusModal() {
@@ -556,13 +569,38 @@ function updateStatusTable() {
                             </span>
                         </td>
                         <td>
-                            <button class="view-btn" onclick="window.open('${item.file_link}', '_blank')">
+                            <button class="view-btn" onclick="viewFile('${item.filename}', '${item.status.toLowerCase()}')">
                                 View
                             </button>
                         </td>
                     `;
                     tableBody.appendChild(row);
                 });
+
+                // Add queue position summary at the bottom
+                fetch('/queue-status')
+                    .then(response => response.json())
+                    .then(queueData => {
+                        const queueSummary = document.createElement('div');
+                        queueSummary.className = 'queue-summary';
+                        
+                        if (queueData.status === 'processing') {
+                            queueSummary.textContent = 'Your files are currently processing...';
+                        } else if (queueData.position > 0) {
+                            queueSummary.textContent = `Your position in queue: #${queueData.position}`;
+                        }
+                        
+                        // Find or create the summary container
+                        let summaryContainer = document.querySelector('.modal-summary');
+                        if (!summaryContainer) {
+                            summaryContainer = document.createElement('div');
+                            summaryContainer.className = 'modal-summary';
+                            document.querySelector('.modal-content').appendChild(summaryContainer);
+                        }
+                        
+                        summaryContainer.innerHTML = '';
+                        summaryContainer.appendChild(queueSummary);
+                    });
             } else {
                 tableBody.innerHTML = `
                     <tr>
@@ -571,7 +609,30 @@ function updateStatusTable() {
                 `;
             }
         })
-        .catch(error => console.error('Error:', error));
+        .catch(error => {
+            console.error('Error:', error);
+            const tableBody = document.getElementById('statusTableBody');
+            tableBody.innerHTML = `
+                <tr>
+                    <td colspan="3" style="text-align: center; color: #ff2233;">
+                        Error loading status. Please try again.
+                    </td>
+                </tr>
+            `;
+        });
+}
+
+// Helper function to determine queue display text
+function getQueueDisplay(queueData, itemStatus) {
+    if (itemStatus.toLowerCase() === 'completed') {
+        return 'Completed';
+    } else if (queueData.status === 'processing') {
+        return 'Processing now';
+    } else if (queueData.status === 'queued') {
+        return `#${queueData.position} in queue`;
+    } else {
+        return 'Pending';
+    }
 }
 
 // Close modal when clicking outside
@@ -729,3 +790,44 @@ chatStyles.textContent = `
     }
 `;
 document.head.appendChild(chatStyles);
+
+// Add this function to handle periodic status updates
+function startStatusUpdates() {
+    // Initial update
+    updateStatusTable();
+    
+    // Update every 10 seconds
+    const statusInterval = setInterval(() => {
+        if (document.getElementById('statusModal').style.display === 'block') {
+            updateStatusTable();
+        }
+    }, 10000); // 10 seconds
+
+    // Clear interval when modal is closed
+    document.querySelector('.close-modal').addEventListener('click', () => {
+        clearInterval(statusInterval);
+    });
+}
+
+// Add these functions for PDF viewing
+function viewFile(filename, status) {
+    const modal = document.getElementById('pdfModal');
+    const viewer = document.getElementById('pdfViewer');
+    const title = document.getElementById('pdfTitle');
+    
+    // Set the title
+    title.textContent = `Viewing: ${filename}`;
+    
+    // Set the source based on status
+    viewer.src = `/view_pdf/${encodeURIComponent(filename)}/${status}`;
+    
+    // Show the modal
+    modal.style.display = 'flex';
+}
+
+function closePdfModal() {
+    const modal = document.getElementById('pdfModal');
+    const viewer = document.getElementById('pdfViewer');
+    viewer.src = ''; // Clear the iframe source
+    modal.style.display = 'none';
+}
