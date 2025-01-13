@@ -1,1 +1,26 @@
-[]
+[
+  {
+    "uploaded_file": {
+      "name": "Sachin Raghunath Kurhade",
+      "dob": "1990-06-15",
+      "current_position": "Network",
+      "unique_number": 4
+    },
+    "duplicates": [
+      {
+        "name": "Sachin Raghunath Kurhade",
+        "unique_number": 3,
+        "similarity": 100.0,
+        "details": {
+          "dob": "1990-06-15",
+          "current_position": "Engineer",
+          "current_employer": "Clover InfoTech private Ltd.",
+          "pdf_path": "processed/3_Sachin_kurhade_VMware_Admin.pdf",
+          "json_path": null
+        }
+      }
+    ],
+    "timestamp": "2025-01-13T10:15:43.749162",
+    "status": "pending_review"
+  }
+]

@@ -18,6 +18,8 @@ from neo4j import GraphDatabase
 import logging
 from typing import Dict, List, Any
 
+# URL bolt://192.168.10.159:7687
+
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
@@ -27,7 +29,7 @@ CHAT_HISTORY_FOLDER = Path("chat_history")
 CHAT_HISTORY_FOLDER.mkdir(exist_ok=True)
 
 # Configure Neo4j connection
-uri = "bolt://localhost:7687"
+uri = "bolt://192.168.10.159:7687"
 username = "neo4j"
 password = "Sagar1601"
 
@@ -41,7 +43,7 @@ DUPLICATES_FOLDER.mkdir(exist_ok=True)
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 UPLOAD_FOLDER.mkdir(exist_ok=True)
 
-pytesseract.pytesseract.tesseract_cmd = r"C:\Users\Sagar\AppData\Local\Programs\Tesseract-OCR\tesseract.exe"
+#pytesseract.pytesseract.tesseract_cmd = r"C:\Users\Sagar\AppData\Local\Programs\Tesseract-OCR\tesseract.exe"
 
 if os.name == 'nt':  # Windows
     POPPLER_PATH = r"poppler-24.07.0\Library\bin"
@@ -220,7 +222,7 @@ def chat():
     class GraphSearcher:
         def __init__(self):
             # Neo4j connection
-            self.uri = "bolt://localhost:7687"
+            self.uri = "bolt://192.168.10.159:7687"
             self.username = "neo4j"
             self.password = "Sagar1601"
             
@@ -235,8 +237,8 @@ def chat():
                 self.driver.verify_connectivity()
                 logger.info("Connected to Neo4j successfully")
                 
-            except Exception as e:
                 logger.error(f"Connection error: {e}")
+            except Exception as e:
                 raise
 
         def close(self):
@@ -340,7 +342,6 @@ def chat():
             except Exception as e:
                 logger.error(f"Error in result formatting: {e}")
                 return str(results)  # Fallback to raw results
-
 
         def search(self, user_query: str) -> str:
             try:
@@ -754,7 +755,7 @@ def process_files():
             class GraphCreator:
                 def __init__(self):
                     # Neo4j connection settings
-                    self.uri = "bolt://localhost:7687"
+                    self.uri = "bolt://192.168.10.159:7687"
                     self.username = "neo4j"
                     self.password = "Sagar1601"
                     
@@ -944,7 +945,7 @@ def process_files():
                 def process_resume(file_path):
                     extracted_text = {}
                     total_tokens = 0
-                    reader = easyocr.Reader(['en'], gpu=True)
+                    reader = easyocr.Reader(['en'], gpu=False)
                     
                     try:
                         # Add PyPDF2 text extraction
@@ -1111,7 +1112,7 @@ def process_files():
                             output_path = os.path.join(output_dir, json_filename)
                             
                             try:
-                                uri = "bolt://localhost:7687"
+                                uri = "bolt://192.168.10.159:7687"
                                 username = "neo4j"
                                 password = "Sagar1601"
                                 driver = GraphDatabase.driver(uri, auth=(username, password))
@@ -1311,6 +1312,7 @@ def process_files():
 
             for filename in os.listdir(user_folder):
                 if filename.lower().endswith(".pdf"):
+                    status = "failed"
                     try:
                         # Update status to "processing"
                         update_processing_status(
@@ -1665,7 +1667,7 @@ def overwrite_duplicate():
     class GraphCreator:
         def __init__(self):
             # Neo4j connection settings
-            self.uri = "bolt://localhost:7687"
+            self.uri = "bolt://192.168.10.159:7687"
             self.username = "neo4j"
             self.password = "Sagar1601"
             
@@ -1930,7 +1932,7 @@ def get_duplicates(unique_number):
         
     try:
         # Connect to Neo4j and fetch duplicates
-        uri = "bolt://localhost:7687"
+        uri = "bolt://192.168.10.159:7687"
         username = "neo4j"
         password = "Sagar1601"
         
@@ -1956,36 +1958,6 @@ def filename_to_name(filename):
     # Remove unique number prefix (7 digits + underscore) and .pdf extension
     return filename[8:].rsplit('.', 1)[0].replace('_', ' ')
 
-    """Process file as a new person, ignoring potential duplicates"""
-    if 'username' not in session:
-        return jsonify({'error': 'Not logged in'}), 401
-        
-    try:
-        # Move file from duplicates to main upload folder
-        source = get_user_folder(session['username']) / 'duplicates' / filename
-        dest = get_user_folder(session['username']) / filename
-        shutil.move(str(source), str(dest))
-        
-        # Add to processing queue
-        add_to_queue(session['username'])
-
-        status_file = STATUS_FOLDER / f"{session['username']}_duplicate_status.json"
-        if status_file.exists():
-            with open(status_file, 'r') as f:
-                status_data = json.load(f)
-            
-            # Remove the entry for the processed file
-            status_data = [entry for entry in status_data 
-                         if str(entry.get('uploaded_file', {}).get('unique_number')) != str(unique_number)]
-            
-            # Write updated status back to file
-            with open(status_file, 'w') as f:
-                json.dump(status_data, f, indent=2)
-        
-        return jsonify({'success': True})
-    except Exception as e:
-        return jsonify({'error': str(e)}), 500
-
 @app.route('/process_as_new', methods=['POST'])
 def process_as_new():
     if 'username' not in session:
@@ -2000,7 +1972,7 @@ def process_as_new():
         class GraphCreator:
             def __init__(self):
                 # Neo4j connection settings
-                self.uri = "bolt://localhost:7687"
+                self.uri = "bolt://192.168.10.159:7687"
                 self.username = "neo4j"
                 self.password = "Sagar1601"
                 

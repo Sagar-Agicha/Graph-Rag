@@ -1,0 +1,143 @@
+{
+  "name": "Sachin Raghunath Kurhade",
+  "unique_number": 4,
+  "education": [
+    {
+      "degree": "S.S.C",
+      "field": "Maharashtra board",
+      "institution": "Not specified",
+      "year": "2005-06"
+    },
+    {
+      "degree": "H.S.C",
+      "field": "Maharashtra board",
+      "institution": "Not specified",
+      "year": "2007-08"
+    },
+    {
+      "degree": "Graduation in T.y.B.sc (Computer science)",
+      "field": "Computer science",
+      "institution": "Mumbai University",
+      "year": "2011"
+    }
+  ],
+  "experience": [
+    {
+      "designation": "Network",
+      "work_at": "Clover InfoTech private Ltd.",
+      "years": "2020-Present",
+      "worked_on": "Windows Server 2k8 R2, 2k12, 2k12 R2, 2k16, 2k19"
+    },
+    {
+      "designation": "Engineer",
+      "work_at": "HCL Comnet Ltd.",
+      "years": "2017-2020",
+      "worked_on": "Cisco Jabber Client, SIP Trunk configuration, IP phones and video calling"
+    },
+    {
+      "designation": "Datacenter Operation Engineer",
+      "work_at": "HCL Comnet Ltd.",
+      "years": "2017-2017",
+      "worked_on": "Disk space Utilization alerts, Backup Jobs, Tape Movement"
+    },
+    {
+      "designation": "Engineer",
+      "work_at": "HCL Comnet Ltd.",
+      "years": "2016-2017",
+      "worked_on": "Desktop, laptop & printer, Outlook related Issue"
+    },
+    {
+      "designation": "Associate Engineer -Customer Services",
+      "work_at": "Accel Frotline Ltd",
+      "years": "2016-2016",
+      "worked_on": "Desktop, laptop & printer, Outlook related Issue"
+    },
+    {
+      "designation": "Associate Engineer -Customer Services",
+      "work_at": "Aurumsoft Pvt Ltd",
+      "years": "2015-2016",
+      "worked_on": "Desktop, laptop & printer, network related issues"
+    },
+    {
+      "designation": "Associate Engineer -Customer Services",
+      "work_at": "Aurumsoft Pvt Ltd",
+      "years": "2014-2015",
+      "worked_on": "Server related issues, desktop, laptop & printer, network related issues"
+    },
+    {
+      "designation": "Web Developer",
+      "work_at": "Innovative Learning solution",
+      "years": "2011-2013",
+      "worked_on": "ELS02, CNG30, PPH15, PCP15, JWS52, ELSC8, JBL01"
+    }
+  ],
+  "number_of_years_of_experience": 4,
+  "professional_skills": [
+    "Windows Server",
+    "Cisco Jabber Client",
+    "SIP Trunk configuration",
+    "IP phones and video calling",
+    "Disk space Utilization alerts",
+    "Backup Jobs",
+    "Tape Movement",
+    "Desktop, laptop & printer",
+    "Outlook related Issue",
+    "Server related issues",
+    "Symantec Daily, Weekly & Monthly Backups",
+    "Antivirus database",
+    "Video conferencing & Projector call",
+    "HTML",
+    "XML"
+  ],
+  "certifications": [],
+  "languages": [
+    "Hindi",
+    "English",
+    "Marathi"
+  ],
+  "projects": [
+    {
+      "name": "ELS02",
+      "skills_used": "HTML, XML"
+    },
+    {
+      "name": "CNG30",
+      "skills_used": "HTML, XML"
+    },
+    {
+      "name": "PPH15",
+      "skills_used": "HTML, XML"
+    },
+    {
+      "name": "PCP15",
+      "skills_used": "HTML, XML"
+    },
+    {
+      "name": "JWS52",
+      "skills_used": "HTML, XML"
+    },
+    {
+      "name": "ELSC8",
+      "skills_used": "HTML, XML"
+    },
+    {
+      "name": "JBL01",
+      "skills_used": "HTML, XML"
+    }
+  ],
+  "achievements": [
+    "National Referee",
+    "National Player",
+    "National Coach",
+    "First Dan Black belt",
+    "University Bronze Medal"
+  ],
+  "DOB": "1990-06-15",
+  "gender": "Male",
+  "marital_status": "Unmarried",
+  "nationality": "Indian",
+  "current_position": "Network",
+  "current_employer": "Clover InfoTech private Ltd.",
+  "email": "",
+  "skills": []
+}
