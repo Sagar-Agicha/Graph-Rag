@@ -237,8 +237,8 @@ def chat():
                 self.driver.verify_connectivity()
                 logger.info("Connected to Neo4j successfully")
                 
-                logger.error(f"Connection error: {e}")
             except Exception as e:
+                logger.error(f"Connection error: {e}")
                 raise
 
         def close(self):
@@ -264,7 +264,7 @@ def chat():
                             - (:Person {name, email, DOB, gender, marital_status, nationality, current_position, current_employer, number_of_years_of_experience})
                             - (:Language {name})
                             - (:Skill {name})
-                            - (:Certification {name, year, id})
+                            - (:Certification {name})
                             - (:Company {name, domain})
                             - (:Institution {name, domain})
                             - (:Achievement {description})
@@ -2251,8 +2251,8 @@ def view_pdf(filename, status):
         user_folder = get_user_folder(session['username'])
         
         # Determine the correct folder based on status
-        if status == 'processed':
-            file_path = user_folder / 'processed' / filename
+        if status == 'completed':
+            file_path = Path('processed') / filename
         elif status == 'duplicate':
             file_path = user_folder / 'duplicates' / filename
         else:
