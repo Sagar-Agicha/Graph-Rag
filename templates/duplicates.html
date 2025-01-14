@@ -200,6 +200,13 @@
             right: 10px;
             z-index: 1000;
         }
+
+        @keyframes fadeInOut {
+            0% { opacity: 0; transform: translateY(-20px); }
+            10% { opacity: 1; transform: translateY(0); }
+            90% { opacity: 1; transform: translateY(0); }
+            100% { opacity: 0; transform: translateY(-20px); }
+        }
     </style>
 </head>
 <body>
@@ -311,6 +318,20 @@
         <iframe id="pdfViewer" style="width: 100%; height: calc(100% - 50px); border: none;"></iframe>
     </div>
 </div>
+
+<!-- Add this modal for Different Person confirmation -->
+<div id="differentPersonModal" class="modal">
+    <div class="modal-content">
+        <p>Are you sure you want to process this as a different person?</p>
+        <button onclick="confirmDifferentPerson()" style="background: #4CAF50; color: white;">Confirm</button>
+        <button onclick="closeModal()" style="background: #f44336; color: white;">Cancel</button>
+    </div>
+</div>
+
+<!-- Add this notification element -->
+<div id="notification" style="display: none; position: fixed; top: 20px; right: 20px; padding: 15px; border-radius: 5px; background: #4CAF50; color: white; z-index: 1000; animation: fadeInOut 3s ease-in-out;">
+</div>
+
 <!-- Add before closing body tag -->
 <div class="page-transition">
     <div class="transition-line horizontal" style="top: 0"></div>
@@ -401,7 +422,8 @@
         .then(response => response.json())
         .then(data => {
             if (data.success) {
-                location.reload(); // Refresh the page to show updated list
+                showNotification(`Successfully processed: ${action}`);
+                location.reload();
             } else {
                 alert('Error: ' + (data.error || 'Unknown error'));
             }
@@ -492,7 +514,8 @@
         .then(response => response.json())
         .then(data => {
             if (data.success) {
-                location.reload(); // Refresh the page to show updated list
+                showNotification('Successfully overwrote the file');
+                location.reload();
             } else {
                 alert('Error: ' + (data.error || 'Unknown error'));
             }
@@ -521,16 +544,28 @@
         const pdfModal = document.getElementById('pdfModal');
         const actionModal = document.getElementById('actionModal');
         const overwriteModal = document.getElementById('overwriteModal');
+        const differentPersonModal = document.getElementById('differentPersonModal');
         
         if (event.target === pdfModal) {
             closePdfModal();
         }
-        if (event.target === actionModal || event.target === overwriteModal) {
+        if (event.target === actionModal || event.target === overwriteModal || event.target === differentPersonModal) {
             closeModal();
         }
     }
 
     function handleDifferentPerson(filename, uniqueNumber) {
+        const modal = document.getElementById('differentPersonModal');
+        modal.dataset.filename = filename;
+        modal.dataset.uniqueNumber = uniqueNumber;
+        modal.style.display = 'flex';
+    }
+
+    function confirmDifferentPerson() {
+        const modal = document.getElementById('differentPersonModal');
+        const filename = modal.dataset.filename;
+        const uniqueNumber = modal.dataset.uniqueNumber;
+
         fetch('/process_as_new', {
             method: 'POST',
             headers: {
@@ -544,7 +579,8 @@
         .then(response => response.json())
         .then(data => {
             if (data.success) {
-                location.reload(); // Refresh the page to show updated list
+                showNotification('Successfully processed as different person');
+                location.reload();
             } else {
                 alert('Error: ' + (data.error || 'Unknown error'));
             }
@@ -553,6 +589,18 @@
             console.error('Error:', error);
             alert('Error processing different person action');
         });
+
+        closeModal();
+    }
+
+    function showNotification(message) {
+        const notification = document.getElementById('notification');
+        notification.textContent = message;
+        notification.style.display = 'block';
+        
+        setTimeout(() => {
+            notification.style.display = 'none';
+        }, 3000);
     }
 </script>
 

@@ -122,7 +122,8 @@ def upload_file():
         return jsonify({'error': 'No files in request'}), 400
     
     files = request.files.getlist('files')
-    user_folder = get_user_folder(session['username'])
+    user_folder = UPLOAD_FOLDER / session['username']
+    user_folder.mkdir(exist_ok=True)
     
     for file in files:
         if file and allowed_file(file.filename):
@@ -174,7 +175,7 @@ def get_user_files_and_duplicates():
         
     try:
         files = []
-        user_folder = get_user_folder(session['username'])
+        user_folder = UPLOAD_FOLDER / session['username']
         duplicate_folder = user_folder / 'duplicates'
         duplicate_count = len(list(duplicate_folder.glob('*.pdf'))) if duplicate_folder.exists() else 0
         
@@ -253,10 +254,10 @@ def chat():
                         {"role": "system", "content": """
                             You are an expert in Neo4j and Cypher query language. Your task is to convert natural language queries into precise Cypher statements using the given database schema.
                             Return only the Cypher query with no additional responses.
-                            If asked for skills or certifications, return only `p.name AS Name`.
+                            If asked for skills or certifications or education, return only `p.name AS Name`.
                             If specifically asked for email, return only `p.email AS Email`.
                             For numeric comparisons, ensure to convert string fields to integers using toInteger().
-                            Use `CONTAINS` or `STARTS WITH` for partial matches in skill names.
+                            Use `CONTAINS` or `STARTS WITH` for partial matches in skill, certification, education names.
                             For exact word matches within a sentence, use regular expressions to ensure the word is matched as a standalone word.
 
                             ### Database Schema
@@ -266,7 +267,7 @@ def chat():
                             - (:Skill {name})
                             - (:Certification {name})
                             - (:Company {name, domain})
-                            - (:Institution {name, domain})
+                            - (:Institution {name, degree})
                             - (:Achievement {description})
                             - (:Project {name, skills_used})
                             - (:Experience {company, role, duration})
@@ -286,7 +287,7 @@ def chat():
                             1. Use OPTIONAL MATCH to include partial matches.
                             2. Combine results from multiple relationships when necessary.
                             3. Ensure the query adheres to the schema.
-                            4. Return DISTINCT results to avoid duplicates.
+                            4. Dont use DISTINCT
 
                             ### Examples:
                             #### Example 1:
@@ -315,7 +316,7 @@ def chat():
                             """},
                         {"role": "user", "content": query}
                     ],
-                    temperature=0.0,
+                    temperature=0.2,
                     top_p=0.1
                 )
                 return response.choices[0].message.content.strip()
@@ -335,7 +336,7 @@ def chat():
                         {"role": "system", "content": "Convert database results into natural language response. Be concise and clear."},
                         {"role": "user", "content": f"Convert these results to natural language just names nothing else and if any fields are empty delete it from the response and give each name in a new line: {json.dumps(results)}"}
                     ],
-                    temperature=0.0,
+                    temperature=0.2,
                     top_p=0.0
                 )
                 return response.choices[0].message.content.strip()
@@ -468,6 +469,22 @@ def process_files():
         return jsonify({'error': 'Not logged in'}), 401
 
     username = session['username']
+    
+     # Create user-specific processing directory if it doesn't exist
+    processing_dir = os.path.join('uploads', username, 'processing')
+    os.makedirs(processing_dir, exist_ok=True)
+    
+    # Get all files from the user's upload directory
+    upload_dir = os.path.join('uploads', username)
+    
+    # Move all PDF files to processing directory
+    moved_files = []
+    for filename in os.listdir(upload_dir):
+        if filename.endswith('.pdf'):
+            src_path = os.path.join(upload_dir, filename)
+            dst_path = os.path.join(processing_dir, filename)
+            shutil.move(src_path, dst_path)
+            moved_files.append(filename)
     
     # Add user to queue
     add_to_queue(username)
@@ -1430,7 +1447,7 @@ def get_processing_status():
 
 def get_user_folder(username):
     """Get the path to user's upload folder"""
-    user_folder = UPLOAD_FOLDER / username
+    user_folder = UPLOAD_FOLDER / username / 'processing'
     user_folder.mkdir(exist_ok=True)
     return user_folder
 

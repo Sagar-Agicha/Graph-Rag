@@ -184,6 +184,11 @@ function displayUploadedFiles() {
 }
 
 function deleteUploadedFile(filename) {
+    // Show confirmation dialog
+    if (!confirm(`Are you sure you want to delete "${filename}"?`)) {
+        return; // Exit if user cancels
+    }
+
     fetch('/delete', {
         method: 'POST',
         headers: {
@@ -222,17 +227,23 @@ function startProcessing() {
         'Check the Status tab for updates.'
     );
 
-    // Make the API call
+    // Make the API call with the current path included
     fetch('/process', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
-        }
+        },
+        body: JSON.stringify({
+            currentPath: window.location.pathname // This will help identify the user context
+        })
     })
     .then(response => response.json())
     .then(data => {
         if (data.error) {
             showCustomPopup('Error', 'Processing failed: ' + data.error);
+        } else {
+            // Refresh the file list to show updated locations
+            displayUploadedFiles();
         }
     })
     .catch(error => {
