@@ -156,7 +156,7 @@ def delete_file():
     if not filename:
         return jsonify({'error': 'No filename provided'}), 400
 
-    user_folder = get_user_folder(session['username'])
+    user_folder = UPLOAD_FOLDER / session['username']
     file_path = user_folder / secure_filename(filename)
     
     try:
@@ -252,12 +252,14 @@ def chat():
                     model='Qwen2.5-Coder-32B-Instruct',
                     messages=[
                         {"role": "system", "content": """
+                            If the query is about a certain person (if contains Indian name), return number "1" and the name of the person in this format `1_name_of_the_person` nothing else.
                             You are an expert in Neo4j and Cypher query language. Your task is to convert natural language queries into precise Cypher statements using the given database schema.
                             Return only the Cypher query with no additional responses.
                             If asked for skills or certifications or education, return only `p.name AS Name`.
                             If specifically asked for email, return only `p.email AS Email`.
+                            If specifically asked for skills, return only `s.name AS Skills`.
                             For numeric comparisons, ensure to convert string fields to integers using toInteger().
-                            Use `CONTAINS` or `STARTS WITH` for partial matches in skill, certification, education names.
+                            Use `CONTAINS` or `STARTS WITH` for partial matches in skill, certification, education names, and experience.
                             For exact word matches within a sentence, use regular expressions to ensure the word is matched as a standalone word.
 
                             ### Database Schema
@@ -288,7 +290,8 @@ def chat():
                             2. Combine results from multiple relationships when necessary.
                             3. Ensure the query adheres to the schema.
                             4. Dont use DISTINCT
-
+                            5. Use toLower() for partial matches in skill, certification, education names, and experience.
+                         
                             ### Examples:
                             #### Example 1:
                             **Natural Language Query**: Find all people skilled in Python with a certification in data science.
@@ -310,6 +313,11 @@ def chat():
                             MATCH (p:Person)-[:HAS_SKILL]->(s:Skill)
                             WHERE toLower(s.name) CONTAINS toLower('nutanix')
                             RETURN DISTINCT p.name AS Name
+                         
+                            #### Example 4:
+                            **Natural Language Query**: Give me all the Kalim Nabban Khan skills
+                            **Cypher Query**:
+                            MATCH (p:Person {name: "Kalim Nabban Khan"})-[:HAS_SKILL]->(s:Skill) RETURN s.name AS Name
 
                             Return only cypher query no addiational responses.
                             Validate the response again, only cypher query nothing else.
@@ -325,10 +333,10 @@ def chat():
                 return None
 
         def format_results(self, results: List[Dict[str, Any]]) -> str:
-            """Format results into a natural language response using Sambanova"""
+            """Format results into buttons if multiple names, otherwise natural language"""
             if not results:
                 return "No results found."
-                
+            
             try:
                 response = self.client.chat.completions.create(
                     model='Meta-Llama-3.1-8B-Instruct',
@@ -349,11 +357,40 @@ def chat():
                 # Convert natural language to Cypher
                 cypher_query = self.query_to_cypher(user_query)
                 cypher_query = cypher_query.replace("\n", " ")
-                print("cypher_query = ", cypher_query)
-                if not cypher_query:
-                    return "Sorry, I couldn't understand the query."
+                if "1_" in cypher_query:
+                    uri = "bolt://192.168.10.159:7687"
+                    username = "neo4j"
+                    password = "Sagar1601"
+                    driver = GraphDatabase.driver(uri, auth=(username, password))
+                    driver.verify_connectivity()
+                    logger.info("Connected to Neo4j successfully")
 
-                # Add debug query to list all certifications
+                    with GraphDatabase.driver(uri, auth=(username, password)) as driver:
+                        with driver.session() as session1:
+                            # Use apoc.text.levenshteinSimilarity for name comparison
+                            result = session1.run("""
+                                MATCH (p:Person)
+                                WHERE toLower(p.name) = toLower($name)
+                                    OR apoc.text.levenshteinSimilarity(toLower(p.name), toLower($name)) > 0.8
+                                RETURN p.name as matched_name,
+                                        p.DOB as dob,
+                                        p.current_position as current_position,
+                                        p.current_employer as current_employer,
+                                        p.unique_number as unique_number,
+                                        apoc.text.levenshteinSimilarity(toLower(p.name), toLower($name)) as similarity
+                                ORDER BY similarity DESC
+                            """, name=cypher_query.split("_")[1])
+                            
+                            records = list(result)
+                            if not records:
+                                return "False", None  
+
+                    return "True", records
+                else:
+                    print("cypher_query = ", cypher_query)
+                    if not cypher_query:
+                        return "Sorry, I couldn't understand the query."
+
                 with self.driver.session() as session:
                     results = list(session.run(cypher_query))
                     results_list = [record.data() for record in results]

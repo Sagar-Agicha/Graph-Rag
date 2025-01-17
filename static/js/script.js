@@ -842,3 +842,50 @@ function closePdfModal() {
     viewer.src = ''; // Clear the iframe source
     modal.style.display = 'none';
 }
+
+function displayMessage(message, sender) {
+    const chatContainer = document.getElementById('chat-container');
+    const messageDiv = document.createElement('div');
+    messageDiv.className = `message ${sender}`;
+    
+    try {
+        // Try to parse as JSON to check for button data
+        const data = JSON.parse(message);
+        if (data.buttons && Array.isArray(data.buttons)) {
+            // Create button container
+            const buttonContainer = document.createElement('div');
+            buttonContainer.className = 'button-container';
+            
+            // Create buttons for each result
+            data.buttons.forEach(button => {
+                const btn = document.createElement('button');
+                btn.className = 'result-button';
+                btn.innerHTML = `
+                    <strong>${button.data.name}</strong><br>
+                    ${button.data.position}<br>
+                    ${button.data.company}
+                `;
+                
+                // Add click handler
+                btn.onclick = () => {
+                    // Send new query for detailed info
+                    const detailQuery = `Give me summary of ${button.data.name}`;
+                    document.getElementById('user-input').value = detailQuery;
+                    sendMessage();
+                };
+                
+                buttonContainer.appendChild(btn);
+            });
+            
+            messageDiv.appendChild(buttonContainer);
+        } else {
+            messageDiv.textContent = message;
+        }
+    } catch (e) {
+        // Not JSON, display as regular message
+        messageDiv.textContent = message;
+    }
+    
+    chatContainer.appendChild(messageDiv);
+    chatContainer.scrollTop = chatContainer.scrollHeight;
+}

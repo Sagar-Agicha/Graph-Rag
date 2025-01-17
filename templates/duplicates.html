@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Duplicate Files</title>
+    <title>Resume Rishi</title>
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/transitions.css') }}">
     <style>
@@ -310,12 +310,28 @@
 
 <!-- Add this modal for PDF viewing -->
 <div id="pdfModal" class="modal">
-    <div class="modal-content" style="width: 90%; max-width: 1000px; height: 80vh;">
+    <div class="modal-content" style="width: 95%; max-width: 1800px; height: 90vh;">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-            <h3 id="pdfTitle" style="margin: 0;">PDF Viewer</h3>
+            <h3 id="pdfTitle" style="margin: 0;">Resume Comparison</h3>
             <button onclick="closePdfModal()" style="background: #f44336; color: white;">Close</button>
         </div>
-        <iframe id="pdfViewer" style="width: 100%; height: calc(100% - 50px); border: none;"></iframe>
+        <div style="display: flex; gap: 20px; height: calc(100% - 50px);">
+            <!-- Left PDF -->
+            <div style="flex: 1; display: flex; flex-direction: column;">
+                <h4>Uploaded PDF</h4>
+                <iframe id="leftPdfViewer" style="width: 100%; height: 100%; border: none; background: white; border-radius: 5px;"></iframe>
+            </div>
+            <!-- Right PDF -->
+            <div style="flex: 1; display: flex; flex-direction: column;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                    <h4>Select Duplicate to Compare:</h4>
+                    <select id="rightPdfSelector" style="padding: 5px; margin-left: 10px;" onchange="loadRightPdf()">
+                        <option value="">Select a file...</option>
+                    </select>
+                </div>
+                <iframe id="rightPdfViewer" style="width: 100%; height: 100%; border: none; background: white; border-radius: 5px;"></iframe>
+            </div>
+        </div>
     </div>
 </div>
 
@@ -377,19 +393,63 @@
         });
     });
 
-    function viewFile(uniqueNumber, filename, flag){
+    function viewFile(uniqueNumber, filename, flag) {
         const modal = document.getElementById('pdfModal');
-        const viewer = document.getElementById('pdfViewer');
+        const leftViewer = document.getElementById('leftPdfViewer');
         const title = document.getElementById('pdfTitle');
+        const selector = document.getElementById('rightPdfSelector');
         
         // Set the title
-        title.textContent = `Viewing: ${filename}`;
-
-        // Use only the unique number for the request
-        viewer.src = `/view_duplicate/${uniqueNumber}/${flag}`;
+        title.textContent = `Comparing: ${filename}`;
+        
+        // Load the left PDF (uploaded file)
+        leftViewer.src = `/view_duplicate/${uniqueNumber}/${flag}`;
+        
+        // Clear and populate the selector with duplicates
+        selector.innerHTML = '<option value="">Select a file...</option>';
+        
+        // Find the duplicates from the nested table for this file
+        const duplicateRows = document.querySelector(`tr[data-unique-number="${uniqueNumber}"]`)
+            ?.nextElementSibling
+            ?.querySelector('.nested-table tbody')
+            ?.querySelectorAll('tr');
+        
+        if (duplicateRows) {
+            duplicateRows.forEach(row => {
+                const fileLink = row.querySelector('.file-link');
+                const duplicateName = fileLink.textContent;
+                const duplicateId = fileLink.getAttribute('onclick').match(/'([^']+)'/)[1];
+                
+                const option = document.createElement('option');
+                option.value = `${duplicateId},0`; // 0 flag for processed files
+                option.textContent = duplicateName;
+                selector.appendChild(option);
+            });
+        }
         
         // Show the modal
         modal.style.display = 'flex';
+    }
+
+    function loadRightPdf() {
+        const selector = document.getElementById('rightPdfSelector');
+        const rightViewer = document.getElementById('rightPdfViewer');
+        
+        if (selector.value) {
+            const [uniqueNumber, flag] = selector.value.split(',');
+            rightViewer.src = `/view_duplicate/${uniqueNumber}/${flag}`;
+        } else {
+            rightViewer.src = '';
+        }
+    }
+
+    function closePdfModal() {
+        const modal = document.getElementById('pdfModal');
+        const leftViewer = document.getElementById('leftPdfViewer');
+        const rightViewer = document.getElementById('rightPdfViewer');
+        leftViewer.src = '';
+        rightViewer.src = '';
+        modal.style.display = 'none';
     }
 
     function showModal(action, filename, unique_number) {
@@ -530,13 +590,8 @@
 
     function closeModal() {
         document.getElementById('overwriteModal').style.display = 'none';
-    }
-
-    function closePdfModal() {
-        const modal = document.getElementById('pdfModal');
-        const viewer = document.getElementById('pdfViewer');
-        viewer.src = ''; // Clear the iframe source
-        modal.style.display = 'none';
+        document.getElementById('actionModal').style.display = 'none';
+        document.getElementById('differentPersonModal').style.display = 'none';
     }
 
     // Close modal when clicking outside

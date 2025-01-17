@@ -1,0 +1,38 @@
+[
+  {
+    "uploaded_file": {
+      "name": "Kalim Nabban Khan",
+      "dob": "1997-12-10",
+      "current_position": "Windows Administrator",
+      "unique_number": 9
+    },
+    "duplicates": [
+      {
+        "name": "Kalim Nabban Khan",
+        "unique_number": 3,
+        "similarity": 100.0,
+        "details": {
+          "dob": "1997-12-10",
+          "current_position": "Windows Administrator",
+          "current_employer": "Dixit Infotech Services PVT LTD",
+          "pdf_path": null,
+          "json_path": null
+        }
+      },
+      {
+        "name": "Kalim Nabban Khan",
+        "unique_number": 1,
+        "similarity": 100.0,
+        "details": {
+          "dob": "1997-12-10",
+          "current_position": "Windows Administrator",
+          "current_employer": "Dixit Infotech Services PVT LTD",
+          "pdf_path": "processed/1_Kalim_Khan_VMware_Admin.pdf",
+          "json_path": null
+        }
+      }
+    ],
+    "timestamp": "2025-01-17T15:27:05.778950",
+    "status": "pending_review"
+  }
+]
