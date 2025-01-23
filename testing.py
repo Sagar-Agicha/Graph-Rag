@@ -1,7 +1,7 @@
 from neo4j import GraphDatabase
 
 # Neo4j connection details
-NEO4J_URI = "bolt://192.168.10.159:7687"  # Update if needed
+NEO4J_URI = "bolt://192.168.10.180:7687"  # Update if needed
 USERNAME = "neo4j"  # Replace with your Neo4j username
 PASSWORD = "Sagar1601"  # Replace with your Neo4j password
 
@@ -35,7 +35,7 @@ db = Neo4jQuery(NEO4J_URI, USERNAME, PASSWORD)
 
 # Input details
 input_name = "Kalim Nabban khan"  # Replace with the name to search
-input_dob = "10/12/1997"  # Replace with the DOB to search
+input_dob = "1997-12-10"  # Replace with the DOB to search
 
 # Check if the person exists
 person_found = db.find_person_by_name_and_dob(input_name, input_dob)

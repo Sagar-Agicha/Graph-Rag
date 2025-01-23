@@ -18,7 +18,7 @@ from neo4j import GraphDatabase
 import logging
 from typing import Dict, List, Any
 
-# URL bolt://192.168.10.159:7687
+# URL bolt://192.168.10.180:7687
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -29,7 +29,7 @@ CHAT_HISTORY_FOLDER = Path("chat_history")
 CHAT_HISTORY_FOLDER.mkdir(exist_ok=True)
 
 # Configure Neo4j connection
-uri = "bolt://192.168.10.159:7687"
+uri = "bolt://192.168.10.180:7687"
 username = "neo4j"
 password = "Sagar1601"
 
@@ -223,7 +223,7 @@ def chat():
     class GraphSearcher:
         def __init__(self):
             # Neo4j connection
-            self.uri = "bolt://192.168.10.159:7687"
+            self.uri = "bolt://192.168.10.180:7687"
             self.username = "neo4j"
             self.password = "Sagar1601"
             
@@ -252,7 +252,6 @@ def chat():
                     model='Qwen2.5-Coder-32B-Instruct',
                     messages=[
                         {"role": "system", "content": """
-                            If the query is about a certain person (if contains Indian name), return number "1" and the name of the person in this format `1_name_of_the_person` nothing else.
                             You are an expert in Neo4j and Cypher query language. Your task is to convert natural language queries into precise Cypher statements using the given database schema.
                             Return only the Cypher query with no additional responses.
                             If asked for skills or certifications or education, return only `p.name AS Name`.
@@ -261,6 +260,7 @@ def chat():
                             For numeric comparisons, ensure to convert string fields to integers using toInteger().
                             Use `CONTAINS` or `STARTS WITH` for partial matches in skill, certification, education names, and experience.
                             For exact word matches within a sentence, use regular expressions to ensure the word is matched as a standalone word.
+                            if asked for person names, return distinct (names + current position)
 
                             ### Database Schema
                             Nodes:
@@ -289,8 +289,11 @@ def chat():
                             1. Use OPTIONAL MATCH to include partial matches.
                             2. Combine results from multiple relationships when necessary.
                             3. Ensure the query adheres to the schema.
-                            4. Dont use DISTINCT
-                            5. Use toLower() for partial matches in skill, certification, education names, and experience.
+                            4. Use toLower() for partial matches in skill, certification, education names, and experience.
+                         
+                            For certification and skills, degrees, experience, education, and language queries:
+                                1. Use apoc.text.levenshteinSimilarity for fuzzy matching with 0.8 threshold
+                                2. Also check for CONTAINS and STARTS WITH patterns
                          
                             ### Examples:
                             #### Example 1:
@@ -317,7 +320,14 @@ def chat():
                             #### Example 4:
                             **Natural Language Query**: Give me all the Kalim Nabban Khan skills
                             **Cypher Query**:
-                            MATCH (p:Person {name: "Kalim Nabban Khan"})-[:HAS_SKILL]->(s:Skill) RETURN s.name AS Name
+                            MATCH (p:Person)-[:HAS_SKILL]->(s:Skill)
+                            WHERE toLower(p.name) = toLower("Kalim Nabban Khan")
+                            RETURN s.name AS Name
+                         
+                            #### Example 5:
+                            **Natural Language Query**: Give me all the skills of the person who has DOB 1997-12-10
+                            **Cypher Query**:
+                            MATCH (p:Person {DOB: "1997-12-10"})-[:HAS_SKILL]->(s:Skill) RETURN s.name AS Name
 
                             Return only cypher query no addiational responses.
                             Validate the response again, only cypher query nothing else.
@@ -341,10 +351,20 @@ def chat():
                 response = self.client.chat.completions.create(
                     model='Meta-Llama-3.1-8B-Instruct',
                     messages=[
-                        {"role": "system", "content": "Convert database results into natural language response. Be concise and clear."},
-                        {"role": "user", "content": f"Convert these results to natural language just names nothing else and if any fields are empty delete it from the response and give each name in a new line: {json.dumps(results)}"}
+                        {
+                            "role": "system", "content": """You are a CV data formatter that presents information clearly and professionally.
+                            Format the data following these rules:
+                            1. Present each item on a new line, add numbering to each item and add \n at the end of each item
+                            2. Remove any empty, null, or 'Not specified' values
+                            3. Do not add any explanatory text or headers
+                            4. Do not add numbering or bullets
+                            5. For skills, certifications, or lists: keep items separate
+                            6. Maintain the exact values without paraphrasing
+                            7. If the result is empty, respond with 'No results found'"""
+                         },
+                        {"role": "user", "content": f"Format these CV database results clearly and concisely: {json.dumps(results)}"}
                     ],
-                    temperature=0.2,
+                    temperature=0.1,
                     top_p=0.0
                 )
                 return response.choices[0].message.content.strip()
@@ -358,7 +378,7 @@ def chat():
                 cypher_query = self.query_to_cypher(user_query)
                 cypher_query = cypher_query.replace("\n", " ")
                 if "1_" in cypher_query:
-                    uri = "bolt://192.168.10.159:7687"
+                    uri = "bolt://192.168.10.180:7687"
                     username = "neo4j"
                     password = "Sagar1601"
                     driver = GraphDatabase.driver(uri, auth=(username, password))
@@ -684,6 +704,7 @@ def process_files():
                     8. Dont take skills from experience section, take them from skills section
                     9. Change the DOB format to YYYY-MM-DD from any other format
                     10. Dont change the json structure keys, only add or remove values
+                    11. Maintain the json structure keys as it is
 
                     VALIDATION CHECKLIST:
                     - Each array must start with [ and end with ]
@@ -782,9 +803,21 @@ def process_files():
                 - Valid date formats (YYYY-MM-DD)
                 4. Required fields:
                 - name (string)
+                - unique_number (integer)
                 - education (array of objects)
                 - experience (array of objects)
-                - skills (array of strings)
+                - professional_skills (array of strings)
+                - number_of_years_of_experience (integer)
+                - certifications (array of objects)
+                - languages (array of strings)
+                - projects (array of objects)
+                - achievements (array of strings)
+                - DOB (string)
+                - gender (string)
+                - marital_status (string)
+                - nationality (string)
+                - current_position (string)
+                - current_employer (string)
                 5. Data cleaning rules:
                 - Remove any fields with empty or "Not specified" values
                 - Remove any empty arrays
@@ -809,7 +842,7 @@ def process_files():
             class GraphCreator:
                 def __init__(self):
                     # Neo4j connection settings
-                    self.uri = "bolt://192.168.10.159:7687"
+                    self.uri = "bolt://192.168.10.180:7687"
                     self.username = "neo4j"
                     self.password = "Sagar1601"
                     
@@ -900,6 +933,15 @@ def process_files():
                                     MERGE (s:Skill {name: $skill})
                                     MERGE (p)-[:HAS_SKILL]->(s)
                                 """, name=get_safe_value(data.get('name')), skill=skill_name)
+
+                            if 'skills' in data:
+                                for skill in data.get('skills', []):
+                                    skill_name = get_safe_value(skill)
+                                    session2.run("""
+                                        MATCH (p:Person {name: $name})
+                                        MERGE (s:Skill {name: $skill})
+                                        MERGE (p)-[:HAS_SKILL]->(s)
+                                    """, name=get_safe_value(data.get('name')), skill=skill_name)
 
                             # Create certifications
                             for cert in data.get('certifications', []):
@@ -1166,7 +1208,7 @@ def process_files():
                             output_path = os.path.join(output_dir, json_filename)
                             
                             try:
-                                uri = "bolt://192.168.10.159:7687"
+                                uri = "bolt://192.168.10.180:7687"
                                 username = "neo4j"
                                 password = "Sagar1601"
                                 driver = GraphDatabase.driver(uri, auth=(username, password))
@@ -1290,11 +1332,6 @@ def process_files():
                                         "unique_number": structured_output.get("unique_number")
                                     })
 
-                                    # # Save updated status
-                                    # status_path = STATUS_FOLDER / f"{session['username']}_duplicate_status.json"
-                                    # with open(status_path, 'w') as f:
-                                    #     json.dump(new_duplicate_entry, f, indent=2)
-                                    
                                     # Create duplicates folder and move file
                                     user_duplicates = get_user_folder(session['username']) / 'duplicates'
                                     user_duplicates.mkdir(exist_ok=True)
@@ -1721,7 +1758,7 @@ def overwrite_duplicate():
     class GraphCreator:
         def __init__(self):
             # Neo4j connection settings
-            self.uri = "bolt://192.168.10.159:7687"
+            self.uri = "bolt://192.168.10.180:7687"
             self.username = "neo4j"
             self.password = "Sagar1601"
             
@@ -1986,7 +2023,7 @@ def get_duplicates(unique_number):
         
     try:
         # Connect to Neo4j and fetch duplicates
-        uri = "bolt://192.168.10.159:7687"
+        uri = "bolt://192.168.10.180:7687"
         username = "neo4j"
         password = "Sagar1601"
         
@@ -2026,7 +2063,7 @@ def process_as_new():
         class GraphCreator:
             def __init__(self):
                 # Neo4j connection settings
-                self.uri = "bolt://192.168.10.159:7687"
+                self.uri = "bolt://192.168.10.180:7687"
                 self.username = "neo4j"
                 self.password = "Sagar1601"
                 

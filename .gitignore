@@ -3,3 +3,6 @@ output/
 test_csv/
 cvs/
 .pdf*
+chat_history/
+uniq_num.txt
+.json*
