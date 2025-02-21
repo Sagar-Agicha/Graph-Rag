@@ -29,7 +29,7 @@ CHAT_HISTORY_FOLDER = Path("chat_history")
 CHAT_HISTORY_FOLDER.mkdir(exist_ok=True)
 
 # Configure Neo4j connection
-uri = "bolt://192.168.10.180:7687"
+uri = "bolt://localhost:7687" #7474
 username = "neo4j"
 password = "Sagar1601"
 
@@ -43,7 +43,7 @@ DUPLICATES_FOLDER.mkdir(exist_ok=True)
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 UPLOAD_FOLDER.mkdir(exist_ok=True)
 
-#pytesseract.pytesseract.tesseract_cmd = r"C:\Users\Sagar\AppData\Local\Programs\Tesseract-OCR\tesseract.exe"
+pytesseract.pytesseract.tesseract_cmd = r"C:\Program Files\Tesseract-OCR\tesseract.exe"
 
 if os.name == 'nt':  # Windows
     POPPLER_PATH = r"poppler-24.07.0\Library\bin"
@@ -54,6 +54,43 @@ STATUS_FOLDER.mkdir(exist_ok=True)
 
 # Add a secret key for session management
 app.secret_key = 'Sagar'  # Change this to a secure secret key
+
+def init_app():
+    """Initialize the application"""
+    # Schedule cleanup every hour
+    def run_cleanup():
+        while True:
+            cleanup_old_status_files()
+            time.sleep(3600)
+
+    # Start cleanup thread
+    from threading import Thread
+    cleanup_thread = Thread(target=run_cleanup, daemon=True)
+    cleanup_thread.start()
+
+try:
+    import fcntl  # For Unix systems
+    def lock_file(f):
+        fcntl.flock(f, fcntl.LOCK_EX)
+        
+    def unlock_file(f):
+        fcntl.flock(f, fcntl.LOCK_UN)
+        
+except ImportError:  # For Windows systems
+    import msvcrt
+    def lock_file(f):
+        while True:
+            try:
+                msvcrt.locking(f.fileno(), msvcrt.LK_NBLCK, 1)
+                break
+            except IOError:
+                time.sleep(0.1)
+                
+    def unlock_file(f):
+        try:
+            msvcrt.locking(f.fileno(), msvcrt.LK_UNLCK, 1)
+        except IOError:
+            pass
 
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
@@ -75,6 +112,197 @@ def count_user_duplicates(username):
     except Exception as e:
         print(f"Error counting duplicates: {str(e)}")
         return 0
+
+def process_next_in_queue():
+    """Process the next user's files in the queue"""
+    try:
+        queue_file = Path("queue.txt")
+        if not queue_file.exists():
+            return
+            
+        with open(queue_file, 'r') as f:
+            lines = f.readlines()
+            
+        if not lines:
+            return
+            
+        # Get next user in queue
+        next_user = lines[0].strip().split(',')[0]
+        
+        # Trigger processing for next user
+        with app.test_client() as client:
+            with client.session_transaction() as sess:
+                sess['username'] = next_user
+            client.post('/process')
+            
+    except Exception as e:
+        logger.error(f"Error processing next in queue: {str(e)}")
+
+def get_uploaded_files():
+    files = []
+    for filename in os.listdir(app.config['UPLOAD_FOLDER']):
+        if allowed_file(filename):
+            files.append(filename)
+    return files
+
+def get_user_status_file(username):
+    """Get the path to user's status file"""
+    return STATUS_FOLDER / f"{username}_status.json"
+
+def update_processing_status(filename: str, status: str, file_link: str = None, duplicate_count: int = None):
+    if 'username' not in session:
+        return
+        
+    username = session['username']
+    status_file = get_user_status_file(username)
+    
+    try:
+        if status_file.exists():
+            with open(status_file, 'r') as f:
+                status_data = json.load(f)
+        else:
+            status_data = []
+        
+        # Update existing entry or add new one
+        entry = next((item for item in status_data if item["filename"] == filename), None)
+        if entry:
+            entry.update({
+                "status": status,
+                "file_link": file_link,
+                "last_updated": datetime.now().isoformat()
+            })
+        else:
+            status_data.append({
+                "filename": filename,
+                "status": status,
+                "file_link": file_link,
+                "last_updated": datetime.now().isoformat()
+            })
+        
+        if duplicate_count is not None:
+            status_data[-1]["duplicate_count"] = duplicate_count
+        
+        with open(status_file, 'w') as f:
+            json.dump(status_data, f, indent=4)
+            
+    except Exception as e:
+        print(f"Error updating status: {str(e)}")
+
+def cleanup_old_status_files():
+    """Remove status files older than 24 hours"""
+    current_time = datetime.now()
+    
+    for status_file in STATUS_FOLDER.glob("*_status.json"):
+        try:
+            file_modified_time = datetime.fromtimestamp(os.path.getmtime(status_file))
+            if current_time - file_modified_time > timedelta(hours=24):
+                os.remove(status_file)
+                print(f"Removed old status file: {status_file}")
+        except Exception as e:
+            print(f"Error cleaning up status file {status_file}: {str(e)}")
+
+def get_user_folder(username):
+    """Get the path to user's upload folder"""
+    user_folder = UPLOAD_FOLDER / username / 'processing'
+    user_folder.mkdir(exist_ok=True)
+    return user_folder
+
+def add_to_queue(username):
+    """Add a user to the processing queue"""
+    queue_file = Path("queue.txt")
+    
+    try:
+        with open(queue_file, 'a+') as f:
+            lock_file(f)
+            
+            # Read existing queue
+            f.seek(0)
+            queue = f.readlines()
+            
+            # Check if user is already in queue
+            if f"{username}\n" not in queue:
+                timestamp = datetime.now().isoformat()
+                f.write(f"{username},{timestamp}\n")
+            
+            unlock_file(f)
+            
+        return True
+    except Exception as e:
+        print(f"Error adding to queue: {str(e)}")
+        return False
+
+def remove_from_queue(username):
+    """Remove a user from the processing queue"""
+    queue_file = Path("queue.txt")
+    temp_file = Path("queue_temp.txt")
+    
+    try:
+        # Read current queue
+        with open(queue_file, 'r') as f:
+            lock_file(f)
+            lines = f.readlines()
+            unlock_file(f)
+        
+        # Write to temp file excluding the user
+        with open(temp_file, 'w') as f:
+            lock_file(f)
+            for line in lines:
+                if not line.startswith(f"{username},"):
+                    f.write(line)
+            unlock_file(f)
+            
+        # Replace original file with temp file
+        os.replace(temp_file, queue_file)
+            
+    except Exception as e:
+        print(f"Error removing from queue: {str(e)}")
+
+def check_queue_position(username):
+    """Check user's position in the queue"""
+    queue_file = Path("queue.txt")
+    
+    try:
+        if not queue_file.exists():
+            return 0
+            
+        with open(queue_file, 'r') as f:
+            lock_file(f)
+            lines = f.readlines()
+            unlock_file(f)
+            
+        # Sort by timestamp
+        queue = [line.strip().split(',') for line in lines]
+        queue.sort(key=lambda x: x[1])  # Sort by timestamp
+        
+        # Find position
+        for i, (queued_username, _) in enumerate(queue):
+            if queued_username == username:
+                return i
+                
+        return -1  # Not in queue
+        
+    except Exception as e:
+        print(f"Error checking queue: {str(e)}")
+        return -1
+
+def is_first_in_queue(username):
+    """Check if user is first in queue"""
+    position = check_queue_position(username)
+    return position == 0
+
+def filename_to_name(filename):
+    """Extract name from filename by removing unique number prefix and extension"""
+    # Remove unique number prefix (7 digits + underscore) and .pdf extension
+    return filename[8:].rsplit('.', 1)[0].replace('_', ' ')
+
+@app.before_request
+def check_session():
+    """Check if user is logged in for protected routes"""
+    protected_routes = ['/dashboard', '/files', '/upload', '/delete', '/process']
+    if request.path in protected_routes and 'username' not in session:
+        if request.is_json:
+            return jsonify({'error': 'Not logged in'}), 401
+        return redirect(url_for('home'))
 
 @app.route('/') 
 def home():
@@ -194,13 +422,6 @@ def get_user_files_and_duplicates():
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
-def get_uploaded_files():
-    files = []
-    for filename in os.listdir(app.config['UPLOAD_FOLDER']):
-        if allowed_file(filename):
-            files.append(filename)
-    return files
-
 @app.route('/get_chat_history')
 def get_chat_history():
     if 'username' not in session:
@@ -223,7 +444,7 @@ def chat():
     class GraphSearcher:
         def __init__(self):
             # Neo4j connection
-            self.uri = "bolt://192.168.10.180:7687"
+            self.uri = "bolt://localhost:7687" #7474
             self.username = "neo4j"
             self.password = "Sagar1601"
             
@@ -378,7 +599,7 @@ def chat():
                 cypher_query = self.query_to_cypher(user_query)
                 cypher_query = cypher_query.replace("\n", " ")
                 if "1_" in cypher_query:
-                    uri = "bolt://192.168.10.180:7687"
+                    uri = "bolt://localhost:7687" #7474
                     username = "neo4j"
                     password = "Sagar1601"
                     driver = GraphDatabase.driver(uri, auth=(username, password))
@@ -463,62 +684,6 @@ def clear_chat():
         return jsonify({'message': 'Chat history cleared'})
     except Exception as e:
         return jsonify({'error': str(e)}), 500
-
-def get_user_status_file(username):
-    """Get the path to user's status file"""
-    return STATUS_FOLDER / f"{username}_status.json"
-
-def update_processing_status(filename: str, status: str, file_link: str = None, duplicate_count: int = None):
-    if 'username' not in session:
-        return
-        
-    username = session['username']
-    status_file = get_user_status_file(username)
-    
-    try:
-        if status_file.exists():
-            with open(status_file, 'r') as f:
-                status_data = json.load(f)
-        else:
-            status_data = []
-        
-        # Update existing entry or add new one
-        entry = next((item for item in status_data if item["filename"] == filename), None)
-        if entry:
-            entry.update({
-                "status": status,
-                "file_link": file_link,
-                "last_updated": datetime.now().isoformat()
-            })
-        else:
-            status_data.append({
-                "filename": filename,
-                "status": status,
-                "file_link": file_link,
-                "last_updated": datetime.now().isoformat()
-            })
-        
-        if duplicate_count is not None:
-            status_data[-1]["duplicate_count"] = duplicate_count
-        
-        with open(status_file, 'w') as f:
-            json.dump(status_data, f, indent=4)
-            
-    except Exception as e:
-        print(f"Error updating status: {str(e)}")
-
-def cleanup_old_status_files():
-    """Remove status files older than 24 hours"""
-    current_time = datetime.now()
-    
-    for status_file in STATUS_FOLDER.glob("*_status.json"):
-        try:
-            file_modified_time = datetime.fromtimestamp(os.path.getmtime(status_file))
-            if current_time - file_modified_time > timedelta(hours=24):
-                os.remove(status_file)
-                print(f"Removed old status file: {status_file}")
-        except Exception as e:
-            print(f"Error cleaning up status file {status_file}: {str(e)}")
 
 @app.route('/process', methods=['POST'])
 def process_files():
@@ -842,7 +1007,7 @@ def process_files():
             class GraphCreator:
                 def __init__(self):
                     # Neo4j connection settings
-                    self.uri = "bolt://192.168.10.180:7687"
+                    self.uri = "bolt://localhost:7687" #7474
                     self.username = "neo4j"
                     self.password = "Sagar1601"
                     
@@ -1041,7 +1206,7 @@ def process_files():
                 def process_resume(file_path):
                     extracted_text = {}
                     total_tokens = 0
-                    reader = easyocr.Reader(['en'], gpu=False)
+                    reader = easyocr.Reader(['en'], gpu=True)
                     
                     try:
                         # Add PyPDF2 text extraction
@@ -1208,7 +1373,7 @@ def process_files():
                             output_path = os.path.join(output_dir, json_filename)
                             
                             try:
-                                uri = "bolt://192.168.10.180:7687"
+                                uri = "bolt://localhost:7687" #7474
                                 username = "neo4j"
                                 password = "Sagar1601"
                                 driver = GraphDatabase.driver(uri, auth=(username, password))
@@ -1463,31 +1628,6 @@ def process_files():
         print(f"Error in processing: {str(e)}")
         return jsonify({'error': str(e)}), 500
 
-def process_next_in_queue():
-    """Process the next user's files in the queue"""
-    try:
-        queue_file = Path("queue.txt")
-        if not queue_file.exists():
-            return
-            
-        with open(queue_file, 'r') as f:
-            lines = f.readlines()
-            
-        if not lines:
-            return
-            
-        # Get next user in queue
-        next_user = lines[0].strip().split(',')[0]
-        
-        # Trigger processing for next user
-        with app.test_client() as client:
-            with client.session_transaction() as sess:
-                sess['username'] = next_user
-            client.post('/process')
-            
-    except Exception as e:
-        logger.error(f"Error processing next in queue: {str(e)}")
-
 @app.route('/processing-status', methods=['GET'])
 def get_processing_status():
     """Get the current processing status for files"""
@@ -1518,141 +1658,6 @@ def get_processing_status():
         })
     except Exception as e:
         return jsonify({'error': str(e)}), 500
-
-def get_user_folder(username):
-    """Get the path to user's upload folder"""
-    user_folder = UPLOAD_FOLDER / username / 'processing'
-    user_folder.mkdir(exist_ok=True)
-    return user_folder
-
-@app.before_request
-def check_session():
-    """Check if user is logged in for protected routes"""
-    protected_routes = ['/dashboard', '/files', '/upload', '/delete', '/process']
-    if request.path in protected_routes and 'username' not in session:
-        if request.is_json:
-            return jsonify({'error': 'Not logged in'}), 401
-        return redirect(url_for('home'))
-
-def init_app():
-    """Initialize the application"""
-    # Schedule cleanup every hour
-    def run_cleanup():
-        while True:
-            cleanup_old_status_files()
-            time.sleep(3600)
-
-    # Start cleanup thread
-    from threading import Thread
-    cleanup_thread = Thread(target=run_cleanup, daemon=True)
-    cleanup_thread.start()
-
-try:
-    import fcntl  # For Unix systems
-    def lock_file(f):
-        fcntl.flock(f, fcntl.LOCK_EX)
-        
-    def unlock_file(f):
-        fcntl.flock(f, fcntl.LOCK_UN)
-        
-except ImportError:  # For Windows systems
-    import msvcrt
-    def lock_file(f):
-        while True:
-            try:
-                msvcrt.locking(f.fileno(), msvcrt.LK_NBLCK, 1)
-                break
-            except IOError:
-                time.sleep(0.1)
-                
-    def unlock_file(f):
-        try:
-            msvcrt.locking(f.fileno(), msvcrt.LK_UNLCK, 1)
-        except IOError:
-            pass
-
-def add_to_queue(username):
-    """Add a user to the processing queue"""
-    queue_file = Path("queue.txt")
-    
-    try:
-        with open(queue_file, 'a+') as f:
-            lock_file(f)
-            
-            # Read existing queue
-            f.seek(0)
-            queue = f.readlines()
-            
-            # Check if user is already in queue
-            if f"{username}\n" not in queue:
-                timestamp = datetime.now().isoformat()
-                f.write(f"{username},{timestamp}\n")
-            
-            unlock_file(f)
-            
-        return True
-    except Exception as e:
-        print(f"Error adding to queue: {str(e)}")
-        return False
-
-def remove_from_queue(username):
-    """Remove a user from the processing queue"""
-    queue_file = Path("queue.txt")
-    temp_file = Path("queue_temp.txt")
-    
-    try:
-        # Read current queue
-        with open(queue_file, 'r') as f:
-            lock_file(f)
-            lines = f.readlines()
-            unlock_file(f)
-        
-        # Write to temp file excluding the user
-        with open(temp_file, 'w') as f:
-            lock_file(f)
-            for line in lines:
-                if not line.startswith(f"{username},"):
-                    f.write(line)
-            unlock_file(f)
-            
-        # Replace original file with temp file
-        os.replace(temp_file, queue_file)
-            
-    except Exception as e:
-        print(f"Error removing from queue: {str(e)}")
-
-def check_queue_position(username):
-    """Check user's position in the queue"""
-    queue_file = Path("queue.txt")
-    
-    try:
-        if not queue_file.exists():
-            return 0
-            
-        with open(queue_file, 'r') as f:
-            lock_file(f)
-            lines = f.readlines()
-            unlock_file(f)
-            
-        # Sort by timestamp
-        queue = [line.strip().split(',') for line in lines]
-        queue.sort(key=lambda x: x[1])  # Sort by timestamp
-        
-        # Find position
-        for i, (queued_username, _) in enumerate(queue):
-            if queued_username == username:
-                return i
-                
-        return -1  # Not in queue
-        
-    except Exception as e:
-        print(f"Error checking queue: {str(e)}")
-        return -1
-
-def is_first_in_queue(username):
-    """Check if user is first in queue"""
-    position = check_queue_position(username)
-    return position == 0
 
 @app.route('/queue-status', methods=['GET'])
 def get_queue_status():
@@ -1754,11 +1759,10 @@ def view_duplicate(filename, flag):
 
 @app.route('/overwrite_duplicate', methods=['POST'])
 def overwrite_duplicate():
-
     class GraphCreator:
         def __init__(self):
             # Neo4j connection settings
-            self.uri = "bolt://192.168.10.180:7687"
+            self.uri = "bolt://localhost:7687" #7474
             self.username = "neo4j"
             self.password = "Sagar1601"
             
@@ -2023,7 +2027,7 @@ def get_duplicates(unique_number):
         
     try:
         # Connect to Neo4j and fetch duplicates
-        uri = "bolt://192.168.10.180:7687"
+        uri = "bolt://localhost:7687" #7474
         username = "neo4j"
         password = "Sagar1601"
         
@@ -2044,11 +2048,6 @@ def get_duplicates(unique_number):
         logger.error(f"Error fetching duplicates: {str(e)}")
         return jsonify({'error': str(e)}), 500
 
-def filename_to_name(filename):
-    """Extract name from filename by removing unique number prefix and extension"""
-    # Remove unique number prefix (7 digits + underscore) and .pdf extension
-    return filename[8:].rsplit('.', 1)[0].replace('_', ' ')
-
 @app.route('/process_as_new', methods=['POST'])
 def process_as_new():
     if 'username' not in session:
@@ -2063,7 +2062,7 @@ def process_as_new():
         class GraphCreator:
             def __init__(self):
                 # Neo4j connection settings
-                self.uri = "bolt://192.168.10.180:7687"
+                self.uri = "bolt://localhost:7687" #7474
                 self.username = "neo4j"
                 self.password = "Sagar1601"
                 
@@ -2332,7 +2331,6 @@ def handle_duplicate_action():
         logger.error(f"Error deleting duplicate: {str(e)}")
         return jsonify({'error': str(e)}), 500
 
-# Add this new route to your Flask app
 @app.route('/view_pdf/<filename>/<status>')
 def view_pdf(filename, status):
     if 'username' not in session:
